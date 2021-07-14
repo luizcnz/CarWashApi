@@ -10,6 +10,8 @@ class ComposerStaticInit543786367eac8eea5f54aaf342228f65
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
         '253c157292f75eb38082b5acb06f3f01' => __DIR__ . '/..' . '/nikic/fast-route/src/functions.php',
+        '538ca81a9a966a6716601ecf48f4eaef' => __DIR__ . '/..' . '/opis/closure/functions.php',
+        'b33e3d135e5d9e47d845c576147bda89' => __DIR__ . '/..' . '/php-di/php-di/src/functions.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -26,11 +28,28 @@ class ComposerStaticInit543786367eac8eea5f54aaf342228f65
             'Psr\\Http\\Server\\' => 16,
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Container\\' => 14,
+            'PhpDocReader\\' => 13,
+        ),
+        'O' => 
+        array (
+            'Opis\\Closure\\' => 13,
+        ),
+        'I' => 
+        array (
+            'Invoker\\' => 8,
         ),
         'F' => 
         array (
             'Fig\\Http\\Message\\' => 17,
             'FastRoute\\' => 10,
+        ),
+        'D' => 
+        array (
+            'DI\\' => 3,
+        ),
+        'A' => 
+        array (
+            'Api\\' => 4,
         ),
     );
 
@@ -69,6 +88,18 @@ class ComposerStaticInit543786367eac8eea5f54aaf342228f65
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
         ),
+        'PhpDocReader\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/php-di/phpdoc-reader/src/PhpDocReader',
+        ),
+        'Opis\\Closure\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/opis/closure/src',
+        ),
+        'Invoker\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/php-di/invoker/src',
+        ),
         'Fig\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/fig/http-message-util/src',
@@ -76,6 +107,14 @@ class ComposerStaticInit543786367eac8eea5f54aaf342228f65
         'FastRoute\\' => 
         array (
             0 => __DIR__ . '/..' . '/nikic/fast-route/src',
+        ),
+        'DI\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/php-di/php-di/src',
+        ),
+        'Api\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src',
         ),
     );
 
