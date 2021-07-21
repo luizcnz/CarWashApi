@@ -3,19 +3,19 @@
  * Created by PhpStorm.
  * User: Dany_Hernandez
  * Date: 14/7/2021
- * Time: 14:17
+ * Time: 17:39
  */
 
 namespace Api\controllers;
-
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 
-class  VehiclesController extends BaseController {
+class UsuariosController extends BaseController
+{
 
-    public function  getAllVehicles(Request $request, Response $response, $args){
-        $sql = "SELECT * FROM DetallesFactura";
+    public function  getAllUsers(Request $request, Response $response, $args){
+        $sql = "SELECT * FROM Usuarios";
         $array=[];
         try
         {
@@ -40,10 +40,4 @@ class  VehiclesController extends BaseController {
 
 
     }
-//        $valores= $this->conteiner->get("db_settings");
-//     echo var_dump($valores);
-//    $response->getBody()->write("Hola");
-//    return $response;
-//}
-
 }

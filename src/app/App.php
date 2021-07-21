@@ -30,6 +30,4 @@ require __DIR__ . "/config.php";
 //});
 //
 
-
-
 $app->run();
