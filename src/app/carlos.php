@@ -7,10 +7,21 @@
  */
 
 use Slim\Routing\RouteCollectorProxy;
-$app -> group("/v1",function (RouteCollectorProxy $group){
-    $group->get("/vehicles","Api\controllers\VehiclesController:getAllVehicles");
+use API\controllers;
+$app -> group("/v1/vehicles",function (RouteCollectorProxy $group){
+    //$group->get("","Api\controllers\VehiclesController:getAllVehicles");
+    $group->get("/{idusuario}","Api\controllers\VehiclesController:getAllVehicles");
+    $group->get("/{idusuario}/{idvehiculo}","Api\controllers\VehiclesController:getVehicleByUserId");
+    $group->post("","Api\controllers\VehiclesController:addVehicle");
+    $group->put("","Api\controllers\VehiclesController:updateVehicle");
 });
+
+
 
 //$app -> group("/v1/users",function (RouteCollectorProxy $group2){
 //    $group2->get("/","Api\controllers\UsuariosController:getAllUsers");
 //});
+
+// $app -> group("/v1/models",function (RouteCollectorProxy $group){
+//     $group->get("","Api\controllers\ModelsController:getAllModels");
+// });
