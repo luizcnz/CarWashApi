@@ -21,6 +21,7 @@ class UsuariosController extends BaseController
     }
 
     public function  getAllUsers(Request $request, Response $response, $args){
+
         $sql = "SELECT * FROM Usuarios";
         $array=[];
         try
