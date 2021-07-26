@@ -61,7 +61,12 @@ class  VehiclesController extends BaseController {
     //                     ->withStatus($codeStatus);
     // }
 
-    public function  getAllVehicles(Request $request, Response $response, $args){
+    public function  getAllVehicles(Request $request, Response $response, array $args){
+        
+        
+        $datos = $request->getQueryParams();
+
+        // echo json_encode($datos);
         $sql = "SELECT 
         Vehiculos.idVehiculos,
         Vehiculos.numeroPlaca,
@@ -78,7 +83,7 @@ class  VehiclesController extends BaseController {
         on Vehiculos.idModeloVehiculos = ModelosVehiculos.idModeloVehiculos
         INNER JOIN Combustible
         on Vehiculos.idTipoCombustible = Combustible.idTipoCombustible
-        WHERE idUsuario=".$args["idusuario"];
+        WHERE idUsuario=".$datos["idusuario"];
         $array=[];
         $codeStatus=0;
 
@@ -102,6 +107,7 @@ class  VehiclesController extends BaseController {
         catch(Exception $e)
         {
             array_push($array,["error" => $e->getMessage()]);
+            $codeStatus=CodeStatus::SERVER_ERROR;
         }
          return $response->withHeader('Content-type', 'application/json;charset=utf-8')
             ->withJson($array)
@@ -109,9 +115,8 @@ class  VehiclesController extends BaseController {
     }
 
     public function  getVehicleByUserId(Request $request, Response $response, $args){
-
-        // $uri = $request->getUri();
-        // $uri= $request->getQueryParams();
+        
+        $datos = $request->getQueryParams();
 
         $sql = "SELECT 
         Vehiculos.idVehiculos,
@@ -129,7 +134,7 @@ class  VehiclesController extends BaseController {
         on Vehiculos.idModeloVehiculos = ModelosVehiculos.idModeloVehiculos
         INNER JOIN Combustible
         on Vehiculos.idTipoCombustible = Combustible.idTipoCombustible
-        WHERE idUsuario=".$args["idusuario"]." and idVehiculos =".$args["idvehiculo"];
+        WHERE Vehiculos.idUsuario=".$datos["idusuario"]." and Vehiculos.idVehiculos =".$datos["idvehiculo"];
         $array=[];
         $codeStatus=0;
 
@@ -154,23 +159,35 @@ class  VehiclesController extends BaseController {
         catch(Exception $e)
         {
             array_push($array,["error" => $e->getMessage()]);
+            $codeStatus=CodeStatus::SERVER_ERROR;
         }
          return $response->withHeader('Content-type', 'application/json;charset=utf-8')
             ->withJson($array)
                         ->withStatus($codeStatus);
     }
 
-    public function  addVehicle(Request $request, Response $response, $args){
-        $reqPost = json_decode($request->getBody(), true);
-
-
-        //$imgRoute=$this->url.$convert->convertImage($valor["foto"]);//obtenemos el ruta de la imagen
+    public function  addVehicle(Request $request, Response $response){
         
-        $convert = new ConvertImages();
+        $datos = $request->getParsedBody();
+        //$imgRoute=$this->url.$convert->convertImage($valor["foto"]);//obtenemos el ruta de la imagen
+        //$convert = new ConvertImages();
         $imgRoute= "imagen.jpg";//$this->url.$convert->convertImage($valor["foto"]);
 
-        $sql = "INSERT INTO  Vehiculos(idVehiculos, numeroPlaca, anio, fotoRuta, idMarcaVehiculos, idModeloVehiculos, idTipoCombustible) 
-                VALUES (:idvehiculos, :numeroplaca, :anio, :fotoruta, :idmarcavehiculos, :idmodelovehiculos, :idtipocombustible)";
+        //echo json_encode($datos);
+        // $val1=$datos["numeroplaca"];
+        // $val2=$datos["anio"];
+        // $val3=$datos["idmarcavehiculos"];
+        // $val4=$datos["idusuario"];
+        // $val5=$datos["idmodelovehiculos"];
+        // $val6=$datos["idtipocombustible"];
+
+        // echo json_encode($datos);
+
+        // $response ->write("placa".$val1."|anio".$val2."|idmarca".$val3."|idusuario".$val4."|idmodelo".$val5."\idcombustible".$val6);
+        // return $response;
+
+        $sql = "INSERT INTO  Vehiculos(numeroPlaca, anio, fotoRuta, idMarcaVehiculos, idUsuario, idModeloVehiculos, idTipoCombustible) 
+                VALUES (:numeroplaca, :anio, :fotoruta, :idmarcavehiculos, :idusuario, :idmodelovehiculos, :idtipocombustible)";
          $respuesta=[];
 
          $codeStatus=0;
@@ -178,23 +195,27 @@ class  VehiclesController extends BaseController {
         {
             $db = $this->conteiner->get("db");
             $stament=$db->prepare($sql);
-            $stament->bindParam(":idvehiculos",$reqPost["idvehiculos"]);
-            $stament->bindParam(":numeroplaca",$reqPost["numeroplaca"]);
-            $stament->bindParam(":anio",$reqPost["anio"]);
+            $stament->bindParam(":numeroplaca",$datos["numeroplaca"]);
+            $stament->bindParam(":anio",$datos["anio"]);
             $stament->bindParam(":fotoruta",$imgRoute);
-            $stament->bindParam(":idmarcavehiculos",$reqPost["idmarcavehiculos"]);
-            $stament->bindParam(":idmodelovehiculos",$reqPost["idmodelovehiculos"]);
-            $stament->bindParam(":idtipocombustible",$reqPost["idtipocombustible"]);
+            $stament->bindParam(":idmarcavehiculos",$datos["idmarcavehiculos"]);
+            $stament->bindParam(":idusuario",$datos["idusuario"]);
+            $stament->bindParam(":idmodelovehiculos",$datos["idmodelovehiculos"]);
+            $stament->bindParam(":idtipocombustible",$datos["idtipocombustible"]);
             $res = $stament->execute();
 
             if($res){
+                
                 $codeStatus=CodeStatus::CREATE;
-               $respuesta=["status" => "ok","msg"=>"Guardado con exito"];
+                $respuesta=["status" => "ok","msg"=>"Guardado con exito"];
             }
+            
+
         }
         catch(\PDOException $e)
         {
             $respuesta=["status" =>"error", "msg"=>$e->getMessage()];
+            $codeStatus=CodeStatus::SERVER_ERROR;
         }
         return $response->withHeader('Content-type', 'application/json;charset=utf-8')
             ->withJson($respuesta)
@@ -204,23 +225,26 @@ class  VehiclesController extends BaseController {
 
     public  function  updateVehicle(Request $request, Response $response, array $arg)
     {
-        $reqPost = json_decode($request->getBody(),true);
+        //$reqPost = json_decode($request->getParsedBody(),true);
 
-        $sql = "UPDATE Vehiculos SET numeroPlaca=:numeroplaca, anio=:anio, fotoRuta=:, idMarcaVehiculos=:idmarcavehiculos, idModeloVehiculos=:idmodelovehiculos, idTipoCombustible=:idtipocombustible
-                WHERE idVehiculo=".$arg["id"];
+        $datos = $request->getParsedBody();
+
+        $imgRoute= "imagen.jpg";
+
+        $sql = "UPDATE Vehiculos SET numeroPlaca=:numeroplaca, anio=:anio, fotoRuta=:fotoruta, idMarcaVehiculos=:idmarcavehiculos, idModeloVehiculos=:idmodelovehiculos, idTipoCombustible=:idtipocombustible
+                WHERE idVehiculo=".$datos["idvehiculo"];
          $respuesta=[];
          $codeStatus=0;
         try
         {
             $db = $this->conteiner->get("db");
             $stament=$db->prepare($sql);
-            $stament->bindParam(":idvehiculos",$reqPost["idvehiculos"]);
-            $stament->bindParam(":numeroplaca",$reqPost["numeroplaca"]);
-            $stament->bindParam(":anio",$reqPost["anio"]);
+            $stament->bindParam(":numeroplaca",$datos["numeroplaca"]);
+            $stament->bindParam(":anio",$datos["anio"]);
             $stament->bindParam(":fotoruta",$imgRoute);
-            $stament->bindParam(":idmarcavehiculos",$reqPost["idmarcavehiculos"]);
-            $stament->bindParam(":idmodelovehiculos",$reqPost["idmodelovehiculos"]);
-            $stament->bindParam(":idtipocombustible",$reqPost["idtipocombustible"]);
+            $stament->bindParam(":idmarcavehiculos",$datos["idmarcavehiculos"]);
+            $stament->bindParam(":idmodelovehiculos",$datos["idmodelovehiculos"]);
+            $stament->bindParam(":idtipocombustible",$datos["idtipocombustible"]);
 
             if($stament->rowCount() > 0)
             {
@@ -237,6 +261,7 @@ class  VehiclesController extends BaseController {
         catch(\PDOException $e)
         {
             $respuesta=["status" =>"error", "msg"=>$e->getMessage()];
+            $codeStatus=CodeStatus::SERVER_ERROR;
         }
         return $response->withHeader('Content-type', 'application/json')
             ->withJson($respuesta)
