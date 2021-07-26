@@ -21,7 +21,7 @@ $mainContainer = $app->getContainer();
 $app->addErrorMiddleware(true, true, true);
 
 require __DIR__."/Routes.php";
-require __DIR__ . "/config.php";
+require __DIR__ ."/config.php";
 
 // Add routes
 //$app->get('/', function (Request $request, Response $response) {
