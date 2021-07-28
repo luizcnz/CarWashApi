@@ -3,7 +3,9 @@
         "slim/slim": "^4.0",
         "slim/psr7": "^1.4",
         "slim/http": "^1.2",
-        "php-di/php-di": "^6.3"
+        "php-di/php-di": "^6.3",
+        "ircmaxell/random-lib": "^1.2",
+        "phpmailer/phpmailer": "^6.5"
     },
     "autoload": {
         "psr-4":{
