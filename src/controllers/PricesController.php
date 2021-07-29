@@ -5,7 +5,7 @@ namespace Api\controllers;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Api\models\prices\Prices;
-use Api\utils\status\CodeStatus;
+use Api\utils\status\Constants;
 
 class  PricesController extends BaseController
     {
@@ -34,12 +34,12 @@ class  PricesController extends BaseController
         
                 if ($resultado->rowCount() > 0)
                 {
-                    $codeStatus=CodeStatus::CREATE;
+                    $codeStatus=Constants::CREATE;
                     array_push($array, $resultado->fetchAll(\PDO::FETCH_CLASS,Prices::class));
                 }
                 else
                 {
-                    $codeStatus=CodeStatus::NO_CONTENT;
+                    $codeStatus=Constants::NO_CONTENT;
                     array_push($array,["msg" =>"No hay registros en la base de datos"]);
                     //json_encode("po existen registros en la BBDD.");
                 }
@@ -83,12 +83,12 @@ class  PricesController extends BaseController
         
                 if ($resultado->rowCount() > 0)
                 {
-                    $codeStatus=CodeStatus::CREATE;
+                    $codeStatus=Constants::CREATE;
                     array_push($array, $resultado->fetchAll(\PDO::FETCH_CLASS,Prices::class));
                 }
                 else
                 {
-                    $codeStatus=CodeStatus::NO_CONTENT;
+                    $codeStatus=Constants::NO_CONTENT;
                     array_push($array,["msg" =>"No hay registros en la base de datos"]);
                     //json_encode("po existen registros en la BBDD.");
                 }

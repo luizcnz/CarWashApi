@@ -15,5 +15,6 @@ use Api\controllers\VehiclesController;
 $app -> group("/v1/users",function (RouteCollectorProxy $group){
     $group->get("",UsuariosController::class.":getAllUsers");
     
-    $group->get("/verify",UsuariosController::class.":getNumberVefication"); 
+    $group->post("/verify",UsuariosController::class.":verifyNumberPhone");
+    $group->post("/add",UsuariosController::class.":addUser");
 });

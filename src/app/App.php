@@ -25,7 +25,7 @@ require __DIR__."/Routes.php";
 require __DIR__ ."/config.php";
 
 // Add routes
-//$app->get('/', function (Request $request, Response $response) {
+//$app->get('/', function (Request $request, ResponseServer $response) {
 //    $response->getBody()->write('<a href="/hello/world">Try /hello/world</a>');
 //    return $response;
 //});

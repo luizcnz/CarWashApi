@@ -11,11 +11,11 @@ namespace Api\controllers;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Api\models\vehicles\Vehicles;
-use Api\utils\status\CodeStatus;
+use Api\utils\status\Constants;
 
 class  VehiclesController extends BaseController {
 
-    // public function  getAllVehicles(Request $request, Response $response, $args){
+    // public function  getAllVehicles(Request $request, ResponseServer $response, $args){
     //     $sql = "SELECT 
     //     Vehiculos.idVehiculos,
     //     Vehiculos.numeroPlaca,
@@ -42,12 +42,12 @@ class  VehiclesController extends BaseController {
 
     //         if ($resultado->rowCount() > 0)
     //         {
-    //             $codeStatus=CodeStatus::CREATE;
+    //             $codeStatus=Constants::CREATE;
     //             array_push($array, $resultado->fetchAll(\PDO::FETCH_CLASS,Vehicles::class));
     //         }
     //         else
     //         {
-    //             $codeStatus=CodeStatus::NO_CONTENT;
+    //             $codeStatus=Constants::NO_CONTENT;
     //             array_push($array,["msg" =>"No hay registros en la base de datos"]);
     //             //json_encode("po existen registros en la BBDD.");
     //         }
@@ -94,12 +94,12 @@ class  VehiclesController extends BaseController {
 
             if ($resultado->rowCount() > 0)
             {
-                $codeStatus=CodeStatus::CREATE;
+                $codeStatus=Constants::CREATE;
                 array_push($array, $resultado->fetchAll(\PDO::FETCH_CLASS,Vehicles::class));
             }
             else
             {
-                $codeStatus=CodeStatus::NO_CONTENT;
+                $codeStatus=Constants::NO_CONTENT;
                 array_push($array,["msg" =>"No hay registros en la base de datos"]);
                 //json_encode("po existen registros en la BBDD.");
             }
@@ -107,7 +107,7 @@ class  VehiclesController extends BaseController {
         catch(Exception $e)
         {
             array_push($array,["error" => $e->getMessage()]);
-            $codeStatus=CodeStatus::SERVER_ERROR;
+            $codeStatus=Constants::SERVER_ERROR;
         }
          return $response->withHeader('Content-type', 'application/json;charset=utf-8')
             ->withJson($array)
@@ -146,12 +146,12 @@ class  VehiclesController extends BaseController {
 
             if ($resultado->rowCount() > 0)
             {
-                $codeStatus=CodeStatus::CREATE;
+                $codeStatus=Constants::CREATE;
                 array_push($array, $resultado->fetchAll(\PDO::FETCH_CLASS,Vehicles::class));
             }
             else
             {
-                $codeStatus=CodeStatus::NO_CONTENT;
+                $codeStatus=Constants::NO_CONTENT;
                 array_push($array,["msg" =>"No hay registros en la base de datos"]);
                 //json_encode("po existen registros en la BBDD.");
             }
@@ -159,7 +159,7 @@ class  VehiclesController extends BaseController {
         catch(Exception $e)
         {
             array_push($array,["error" => $e->getMessage()]);
-            $codeStatus=CodeStatus::SERVER_ERROR;
+            $codeStatus=Constants::SERVER_ERROR;
         }
          return $response->withHeader('Content-type', 'application/json;charset=utf-8')
             ->withJson($array)
@@ -172,7 +172,6 @@ class  VehiclesController extends BaseController {
         //$imgRoute=$this->url.$convert->convertImage($valor["foto"]);//obtenemos el ruta de la imagen
         //$convert = new ConvertImages();
         $imgRoute= "imagen.jpg";//$this->url.$convert->convertImage($valor["foto"]);
-
         //echo json_encode($datos);
         // $val1=$datos["numeroplaca"];
         // $val2=$datos["anio"];
@@ -205,8 +204,8 @@ class  VehiclesController extends BaseController {
             $res = $stament->execute();
 
             if($res){
-                
-                $codeStatus=CodeStatus::CREATE;
+
+                $codeStatus=Constants::CREATE;
                 $respuesta=["status" => "ok","msg"=>"Guardado con exito"];
             }
             
@@ -215,7 +214,7 @@ class  VehiclesController extends BaseController {
         catch(\PDOException $e)
         {
             $respuesta=["status" =>"error", "msg"=>$e->getMessage()];
-            $codeStatus=CodeStatus::SERVER_ERROR;
+            $codeStatus=Constants::SERVER_ERROR;
         }
         return $response->withHeader('Content-type', 'application/json;charset=utf-8')
             ->withJson($respuesta)
@@ -261,7 +260,7 @@ class  VehiclesController extends BaseController {
         catch(\PDOException $e)
         {
             $respuesta=["status" =>"error", "msg"=>$e->getMessage()];
-            $codeStatus=CodeStatus::SERVER_ERROR;
+            $codeStatus=Constants::SERVER_ERROR;
         }
         return $response->withHeader('Content-type', 'application/json')
             ->withJson($respuesta)
