@@ -15,7 +15,7 @@ use Api\utils\status\Constants;
 
 class  VehiclesController extends BaseController {
 
-    // public function  getAllVehicles(Request $request, ResponseServer $response, $args){
+    // public function  getAllVehicles(Request $request, Response $response, $args){
     //     $sql = "SELECT 
     //     Vehiculos.idVehiculos,
     //     Vehiculos.numeroPlaca,
@@ -42,12 +42,12 @@ class  VehiclesController extends BaseController {
 
     //         if ($resultado->rowCount() > 0)
     //         {
-    //             $codeStatus=Constants::CREATE;
+    //             $codeStatus=CodeStatus::CREATE;
     //             array_push($array, $resultado->fetchAll(\PDO::FETCH_CLASS,Vehicles::class));
     //         }
     //         else
     //         {
-    //             $codeStatus=Constants::NO_CONTENT;
+    //             $codeStatus=CodeStatus::NO_CONTENT;
     //             array_push($array,["msg" =>"No hay registros en la base de datos"]);
     //             //json_encode("po existen registros en la BBDD.");
     //         }
@@ -64,7 +64,7 @@ class  VehiclesController extends BaseController {
     public function  getAllVehicles(Request $request, Response $response, array $args){
         
         
-        $datos = $request->getQueryParams();
+        //$datos = $request->getQueryParams();
 
         // echo json_encode($datos);
         $sql = "SELECT 
@@ -83,7 +83,7 @@ class  VehiclesController extends BaseController {
         on Vehiculos.idModeloVehiculos = ModelosVehiculos.idModeloVehiculos
         INNER JOIN Combustible
         on Vehiculos.idTipoCombustible = Combustible.idTipoCombustible
-        WHERE idUsuario=".$datos["idusuario"];
+        WHERE idUsuario=".$args["iu"];
         $array=[];
         $codeStatus=0;
 
@@ -95,7 +95,7 @@ class  VehiclesController extends BaseController {
             if ($resultado->rowCount() > 0)
             {
                 $codeStatus=Constants::CREATE;
-                array_push($array, $resultado->fetchAll(\PDO::FETCH_CLASS,Vehicles::class));
+                $response->getBody()->write(json_encode($resultado->fetchAll(\PDO::FETCH_CLASS,Vehicles::class),JSON_NUMERIC_CHECK));
             }
             else
             {
@@ -110,11 +110,11 @@ class  VehiclesController extends BaseController {
             $codeStatus=Constants::SERVER_ERROR;
         }
          return $response->withHeader('Content-type', 'application/json;charset=utf-8')
-            ->withJson($array)
+
                         ->withStatus($codeStatus);
     }
 
-    public function  getVehicleByUserId(Request $request, Response $response, $args){
+    public function  getOneVehicle(Request $request, Response $response, $args){
         
         $datos = $request->getQueryParams();
 
@@ -134,7 +134,7 @@ class  VehiclesController extends BaseController {
         on Vehiculos.idModeloVehiculos = ModelosVehiculos.idModeloVehiculos
         INNER JOIN Combustible
         on Vehiculos.idTipoCombustible = Combustible.idTipoCombustible
-        WHERE Vehiculos.idUsuario=".$datos["idusuario"]." and Vehiculos.idVehiculos =".$datos["idvehiculo"];
+        WHERE Vehiculos.idUsuario=".$datos["iu"]." and Vehiculos.idVehiculos =".$datos["iv"];
         $array=[];
         $codeStatus=0;
 
@@ -162,7 +162,7 @@ class  VehiclesController extends BaseController {
             $codeStatus=Constants::SERVER_ERROR;
         }
          return $response->withHeader('Content-type', 'application/json;charset=utf-8')
-            ->withJson($array)
+
                         ->withStatus($codeStatus);
     }
 
@@ -172,6 +172,7 @@ class  VehiclesController extends BaseController {
         //$imgRoute=$this->url.$convert->convertImage($valor["foto"]);//obtenemos el ruta de la imagen
         //$convert = new ConvertImages();
         $imgRoute= "imagen.jpg";//$this->url.$convert->convertImage($valor["foto"]);
+
         //echo json_encode($datos);
         // $val1=$datos["numeroplaca"];
         // $val2=$datos["anio"];
@@ -198,7 +199,7 @@ class  VehiclesController extends BaseController {
             $stament->bindParam(":anio",$datos["anio"]);
             $stament->bindParam(":fotoruta",$imgRoute);
             $stament->bindParam(":idmarcavehiculos",$datos["idmarcavehiculos"]);
-            $stament->bindParam(":idusuario",$datos["idusuario"]);
+            $stament->bindParam(":idusuario",$datos["iu"]);
             $stament->bindParam(":idmodelovehiculos",$datos["idmodelovehiculos"]);
             $stament->bindParam(":idtipocombustible",$datos["idtipocombustible"]);
             $res = $stament->execute();
@@ -247,12 +248,12 @@ class  VehiclesController extends BaseController {
 
             if($stament->rowCount() > 0)
             {
-                $codeStatus=CREATE;
+                $codeStatus=Constants::CREATE;
                 $respuesta=["status" => "ok","msg"=>"Registro Actualizado"];
             }
             else
             {
-                $codeStatus=NO_CONTENT;
+                $codeStatus=Constants::NO_CONTENT;
                 $respuesta=["msg"=>"No se econtro registro para este id"];
             }
 

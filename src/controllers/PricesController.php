@@ -9,9 +9,8 @@ use Api\utils\status\Constants;
 
 class  PricesController extends BaseController
     {
-        public function  getPricesByVehicleType(Request $request, Response $response, $args){
+        public function  getAllPrices(Request $request, Response $response, $args){
 
-            $datos = $request->getQueryParams();
 
             $sql = "SELECT 
             Precios.idPrecios,
@@ -23,7 +22,7 @@ class  PricesController extends BaseController
             on Precios.idServicios = Servicios.idServicios
             INNER JOIN TiposVehiculos
             on Precios.idTipoVehiculos = TiposVehiculos.idTipoVehiculos
-            WHERE Precios.idTipoVehiculos=".$datos["idtipovehiculo"];
+            WHERE Precios.idTipoVehiculos=".$args["idtipovehiculo"];
             $array=[];
             $codeStatus=0;
         
@@ -49,11 +48,11 @@ class  PricesController extends BaseController
                 array_push($array,["error" => $e->getMessage()]);
             }
              return $response->withHeader('Content-type', 'application/json;charset=utf-8')
-                ->withJson($array)
+
                             ->withStatus($codeStatus);
         }
 
-        public function  getPricesByUserAndVehicle(Request $request, Response $response, $args){
+        public function  getOnePrice(Request $request, Response $response, $args){
 
             $datos = $request->getQueryParams();
 
@@ -72,7 +71,7 @@ class  PricesController extends BaseController
             on TiposVehiculos.idTipoVehiculos = ModelosVehiculos.idTipoVehiculos
             INNER JOIN Vehiculos
             on ModelosVehiculos.idModeloVehiculos = Vehiculos.idModeloVehiculos
-            WHERE Vehiculos.idUsuario=".$datos["idusuario"] ." and Vehiculos.idVehiculos =".$datos["idvehiculo"];
+            WHERE Vehiculos.idUsuario=".$datos["iu"] ." and Vehiculos.idVehiculos =".$datos["iv"];
             $array=[];
             $codeStatus=0;
         
@@ -84,7 +83,8 @@ class  PricesController extends BaseController
                 if ($resultado->rowCount() > 0)
                 {
                     $codeStatus=Constants::CREATE;
-                    array_push($array, $resultado->fetchAll(\PDO::FETCH_CLASS,Prices::class));
+
+                    $response->getBody()->write(json_encode($resultado->fetchAll(\PDO::FETCH_CLASS,Prices::class),JSON_NUMERIC_CHECK));
                 }
                 else
                 {
@@ -98,7 +98,7 @@ class  PricesController extends BaseController
                 array_push($array,["error" => $e->getMessage()]);
             }
              return $response->withHeader('Content-type', 'application/json;charset=utf-8')
-                ->withJson($array)
+
                             ->withStatus($codeStatus);
         }
     }
