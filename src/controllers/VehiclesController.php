@@ -11,7 +11,7 @@ namespace Api\controllers;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Api\models\vehicles\Vehicles;
-use Api\utils\status\CodeStatus;
+use Api\utils\status\Constants;
 
 class  VehiclesController extends BaseController {
 
@@ -64,7 +64,7 @@ class  VehiclesController extends BaseController {
     public function  getAllVehicles(Request $request, Response $response, array $args){
         
         
-        $datos = $request->getQueryParams();
+        //$datos = $request->getQueryParams();
 
         // echo json_encode($datos);
         $sql = "SELECT 
@@ -83,7 +83,7 @@ class  VehiclesController extends BaseController {
         on Vehiculos.idModeloVehiculos = ModelosVehiculos.idModeloVehiculos
         INNER JOIN Combustible
         on Vehiculos.idTipoCombustible = Combustible.idTipoCombustible
-        WHERE idUsuario=".$datos["idusuario"];
+        WHERE idUsuario=".$args["iu"];
         $array=[];
         $codeStatus=0;
 
@@ -94,12 +94,12 @@ class  VehiclesController extends BaseController {
 
             if ($resultado->rowCount() > 0)
             {
-                $codeStatus=CodeStatus::CREATE;
-                array_push($array, $resultado->fetchAll(\PDO::FETCH_CLASS,Vehicles::class));
+                $codeStatus=Constants::CREATE;
+                $response->getBody()->write(json_encode($resultado->fetchAll(\PDO::FETCH_CLASS,Vehicles::class),JSON_NUMERIC_CHECK));
             }
             else
             {
-                $codeStatus=CodeStatus::NO_CONTENT;
+                $codeStatus=Constants::NO_CONTENT;
                 array_push($array,["msg" =>"No hay registros en la base de datos"]);
                 //json_encode("po existen registros en la BBDD.");
             }
@@ -107,14 +107,14 @@ class  VehiclesController extends BaseController {
         catch(Exception $e)
         {
             array_push($array,["error" => $e->getMessage()]);
-            $codeStatus=CodeStatus::SERVER_ERROR;
+            $codeStatus=Constants::SERVER_ERROR;
         }
          return $response->withHeader('Content-type', 'application/json;charset=utf-8')
-            ->withJson($array)
+
                         ->withStatus($codeStatus);
     }
 
-    public function  getVehicleByUserId(Request $request, Response $response, $args){
+    public function  getOneVehicle(Request $request, Response $response, $args){
         
         $datos = $request->getQueryParams();
 
@@ -134,7 +134,7 @@ class  VehiclesController extends BaseController {
         on Vehiculos.idModeloVehiculos = ModelosVehiculos.idModeloVehiculos
         INNER JOIN Combustible
         on Vehiculos.idTipoCombustible = Combustible.idTipoCombustible
-        WHERE Vehiculos.idUsuario=".$datos["idusuario"]." and Vehiculos.idVehiculos =".$datos["idvehiculo"];
+        WHERE Vehiculos.idUsuario=".$datos["iu"]." and Vehiculos.idVehiculos =".$datos["iv"];
         $array=[];
         $codeStatus=0;
 
@@ -146,12 +146,12 @@ class  VehiclesController extends BaseController {
 
             if ($resultado->rowCount() > 0)
             {
-                $codeStatus=CodeStatus::CREATE;
+                $codeStatus=Constants::CREATE;
                 array_push($array, $resultado->fetchAll(\PDO::FETCH_CLASS,Vehicles::class));
             }
             else
             {
-                $codeStatus=CodeStatus::NO_CONTENT;
+                $codeStatus=Constants::NO_CONTENT;
                 array_push($array,["msg" =>"No hay registros en la base de datos"]);
                 //json_encode("po existen registros en la BBDD.");
             }
@@ -159,10 +159,10 @@ class  VehiclesController extends BaseController {
         catch(Exception $e)
         {
             array_push($array,["error" => $e->getMessage()]);
-            $codeStatus=CodeStatus::SERVER_ERROR;
+            $codeStatus=Constants::SERVER_ERROR;
         }
          return $response->withHeader('Content-type', 'application/json;charset=utf-8')
-            ->withJson($array)
+
                         ->withStatus($codeStatus);
     }
 
@@ -199,14 +199,14 @@ class  VehiclesController extends BaseController {
             $stament->bindParam(":anio",$datos["anio"]);
             $stament->bindParam(":fotoruta",$imgRoute);
             $stament->bindParam(":idmarcavehiculos",$datos["idmarcavehiculos"]);
-            $stament->bindParam(":idusuario",$datos["idusuario"]);
+            $stament->bindParam(":idusuario",$datos["iu"]);
             $stament->bindParam(":idmodelovehiculos",$datos["idmodelovehiculos"]);
             $stament->bindParam(":idtipocombustible",$datos["idtipocombustible"]);
             $res = $stament->execute();
 
             if($res){
-                
-                $codeStatus=CodeStatus::CREATE;
+
+                $codeStatus=Constants::CREATE;
                 $respuesta=["status" => "ok","msg"=>"Guardado con exito"];
             }
             
@@ -215,7 +215,7 @@ class  VehiclesController extends BaseController {
         catch(\PDOException $e)
         {
             $respuesta=["status" =>"error", "msg"=>$e->getMessage()];
-            $codeStatus=CodeStatus::SERVER_ERROR;
+            $codeStatus=Constants::SERVER_ERROR;
         }
         return $response->withHeader('Content-type', 'application/json;charset=utf-8')
             ->withJson($respuesta)
@@ -248,12 +248,12 @@ class  VehiclesController extends BaseController {
 
             if($stament->rowCount() > 0)
             {
-                $codeStatus=CREATE;
+                $codeStatus=Constants::CREATE;
                 $respuesta=["status" => "ok","msg"=>"Registro Actualizado"];
             }
             else
             {
-                $codeStatus=NO_CONTENT;
+                $codeStatus=Constants::NO_CONTENT;
                 $respuesta=["msg"=>"No se econtro registro para este id"];
             }
 
@@ -261,7 +261,7 @@ class  VehiclesController extends BaseController {
         catch(\PDOException $e)
         {
             $respuesta=["status" =>"error", "msg"=>$e->getMessage()];
-            $codeStatus=CodeStatus::SERVER_ERROR;
+            $codeStatus=Constants::SERVER_ERROR;
         }
         return $response->withHeader('Content-type', 'application/json')
             ->withJson($respuesta)

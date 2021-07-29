@@ -9,7 +9,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class  TradeMarksController extends BaseController {
 
-    // public function  getAllMarks(Request $request, Response $response, $args){
+    // public function  getAllMarks(Request $request, ResponseServer $response, $args){
     //     $sql = "SELECT marca FROM MarcasVehiculos where idMarcaVehiculos ="+$response+"";
     //     $array=[];
     //     try

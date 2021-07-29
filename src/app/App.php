@@ -10,6 +10,7 @@ use Slim\Factory\AppFactory;
 
 require __DIR__ . '/../../vendor/autoload.php';
 //Creamos el contendor principal que setearemos a slim para crear contendores dentro del
+
 $auxContainer = new \DI\Container();
 AppFactory::setContainer($auxContainer);
 
@@ -21,10 +22,10 @@ $mainContainer = $app->getContainer();
 $app->addErrorMiddleware(true, true, true);
 
 require __DIR__."/Routes.php";
-require __DIR__ . "/config.php";
+require __DIR__ ."/config.php";
 
 // Add routes
-//$app->get('/', function (Request $request, Response $response) {
+//$app->get('/', function (Request $request, ResponseServer $response) {
 //    $response->getBody()->write('<a href="/hello/world">Try /hello/world</a>');
 //    return $response;
 //});

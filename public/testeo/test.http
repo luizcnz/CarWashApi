@@ -1,0 +1,15 @@
+
+/*
+
+*/
+
+POST http://api.com/v1/quote/add HTTP/1.1
+header name: header value
+
+content
+{
+    "estado":"sin registrar",
+    "idEmpleado":"1",
+    "idVehiculo":"1",
+    "servicios":[1,2,3]
+}
