@@ -34,7 +34,7 @@ class  PricesController extends BaseController
                 if ($resultado->rowCount() > 0)
                 {
                     $codeStatus=Constants::CREATE;
-                    array_push($array, $resultado->fetchAll(\PDO::FETCH_CLASS,Prices::class));
+                    $response->getBody()->write(json_encode($resultado->fetchAll(\PDO::FETCH_CLASS,Prices::class),JSON_NUMERIC_CHECK));
                 }
                 else
                 {
