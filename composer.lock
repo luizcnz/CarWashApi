@@ -1173,16 +1173,16 @@
         },
         {
             "name": "symfony/polyfill-php80",
-            "version": "v1.23.0",
+            "version": "v1.23.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php80.git",
-                "reference": "eca0bf41ed421bed1b57c4958bab16aa86b757d0"
+                "reference": "1100343ed1a92e3a38f9ae122fc0eb21602547be"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/eca0bf41ed421bed1b57c4958bab16aa86b757d0",
-                "reference": "eca0bf41ed421bed1b57c4958bab16aa86b757d0",
+                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/1100343ed1a92e3a38f9ae122fc0eb21602547be",
+                "reference": "1100343ed1a92e3a38f9ae122fc0eb21602547be",
                 "shasum": ""
             },
             "require": {
@@ -1236,7 +1236,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php80/tree/v1.23.0"
+                "source": "https://github.com/symfony/polyfill-php80/tree/v1.23.1"
             },
             "funding": [
                 {
@@ -1252,20 +1252,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-02-19T12:13:01+00:00"
+            "time": "2021-07-28T13:41:28+00:00"
         },
         {
             "name": "twilio/sdk",
-            "version": "6.27.0",
+            "version": "6.27.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twilio/twilio-php.git",
-                "reference": "481f570468560d8d6176697606be23aed1275589"
+                "reference": "2e36a394c854719091136c09ad69f5b839716a64"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/481f570468560d8d6176697606be23aed1275589",
-                "reference": "481f570468560d8d6176697606be23aed1275589",
+                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/2e36a394c854719091136c09ad69f5b839716a64",
+                "reference": "2e36a394c854719091136c09ad69f5b839716a64",
                 "shasum": ""
             },
             "require": {
@@ -1304,9 +1304,9 @@
             ],
             "support": {
                 "issues": "https://github.com/twilio/twilio-php/issues",
-                "source": "https://github.com/twilio/twilio-php/tree/6.27.0"
+                "source": "https://github.com/twilio/twilio-php/tree/6.27.1"
             },
-            "time": "2021-07-14T19:13:04+00:00"
+            "time": "2021-07-28T19:07:01+00:00"
         }
     ],
     "packages-dev": [],
@@ -1317,5 +1317,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.1.0"
 }

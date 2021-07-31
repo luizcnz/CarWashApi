@@ -11,6 +11,9 @@ namespace Api\controllers;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Api\models\vehicles\Vehicles;
+use Api\models\vehicles\Models;
+use Api\models\vehicles\Brands;
+use Api\models\vehicles\Gas;
 use Api\utils\status\Constants;
 
 class  VehiclesController extends BaseController {
@@ -83,7 +86,7 @@ class  VehiclesController extends BaseController {
         on Vehiculos.idModeloVehiculos = ModelosVehiculos.idModeloVehiculos
         INNER JOIN Combustible
         on Vehiculos.idTipoCombustible = Combustible.idTipoCombustible
-        WHERE idUsuario=".$args["iu"];
+        WHERE idUsuario=".$args["idUsuario"];
         $array=[];
         $codeStatus=0;
 
@@ -134,7 +137,7 @@ class  VehiclesController extends BaseController {
         on Vehiculos.idModeloVehiculos = ModelosVehiculos.idModeloVehiculos
         INNER JOIN Combustible
         on Vehiculos.idTipoCombustible = Combustible.idTipoCombustible
-        WHERE Vehiculos.idUsuario=".$datos["iu"]." and Vehiculos.idVehiculos =".$datos["iv"];
+        WHERE Vehiculos.idUsuario=".$datos["idUsuario"]." and Vehiculos.idVehiculos =".$datos["idVehiculos"];
         $array=[];
         $codeStatus=0;
 
@@ -147,7 +150,7 @@ class  VehiclesController extends BaseController {
             if ($resultado->rowCount() > 0)
             {
                 $codeStatus=Constants::CREATE;
-                array_push($array, $resultado->fetchAll(\PDO::FETCH_CLASS,Vehicles::class));
+                $response->getBody()->write(json_encode($resultado->fetchAll(\PDO::FETCH_CLASS,Vehicles::class),JSON_NUMERIC_CHECK));
             }
             else
             {
@@ -173,21 +176,10 @@ class  VehiclesController extends BaseController {
         //$convert = new ConvertImages();
         $imgRoute= "imagen.jpg";//$this->url.$convert->convertImage($valor["foto"]);
 
-        //echo json_encode($datos);
-        // $val1=$datos["numeroplaca"];
-        // $val2=$datos["anio"];
-        // $val3=$datos["idmarcavehiculos"];
-        // $val4=$datos["idusuario"];
-        // $val5=$datos["idmodelovehiculos"];
-        // $val6=$datos["idtipocombustible"];
+        
 
-        // echo json_encode($datos);
-
-        // $response ->write("placa".$val1."|anio".$val2."|idmarca".$val3."|idusuario".$val4."|idmodelo".$val5."\idcombustible".$val6);
-        // return $response;
-
-        $sql = "INSERT INTO  Vehiculos(numeroPlaca, anio, fotoRuta, idMarcaVehiculos, idUsuario, idModeloVehiculos, idTipoCombustible) 
-                VALUES (:numeroplaca, :anio, :fotoruta, :idmarcavehiculos, :idusuario, :idmodelovehiculos, :idtipocombustible)";
+        $sql = "INSERT INTO  Vehiculos(numeroPlaca, anio, fotoRuta, observacion, idMarcaVehiculos, idUsuario, idModeloVehiculos, idTipoCombustible) 
+                VALUES (:numeroPlaca, :anio, :fotoRuta, :observacion, :idMarcaVehiculos, :idUsuario, :idModeloVehiculos, :idTipoCombustible)";
          $respuesta=[];
 
          $codeStatus=0;
@@ -195,13 +187,14 @@ class  VehiclesController extends BaseController {
         {
             $db = $this->conteiner->get("db");
             $stament=$db->prepare($sql);
-            $stament->bindParam(":numeroplaca",$datos["numeroplaca"]);
+            $stament->bindParam(":numeroPlaca",$datos["numeroPlaca"]);
             $stament->bindParam(":anio",$datos["anio"]);
-            $stament->bindParam(":fotoruta",$imgRoute);
-            $stament->bindParam(":idmarcavehiculos",$datos["idmarcavehiculos"]);
-            $stament->bindParam(":idusuario",$datos["iu"]);
-            $stament->bindParam(":idmodelovehiculos",$datos["idmodelovehiculos"]);
-            $stament->bindParam(":idtipocombustible",$datos["idtipocombustible"]);
+            $stament->bindParam(":fotoRuta",$imgRoute);
+            $stament->bindParam(":observacion",$datos["observacion"]);
+            $stament->bindParam(":idMarcaVehiculos",$datos["idMarcaVehiculos"]);
+            $stament->bindParam(":idUsuario",$datos["idUsuario"]);
+            $stament->bindParam(":idModeloVehiculos",$datos["idModeloVehiculos"]);
+            $stament->bindParam(":idTipoCombustible",$datos["idTipoCombustible"]);
             $res = $stament->execute();
 
             if($res){
@@ -231,20 +224,21 @@ class  VehiclesController extends BaseController {
 
         $imgRoute= "imagen.jpg";
 
-        $sql = "UPDATE Vehiculos SET numeroPlaca=:numeroplaca, anio=:anio, fotoRuta=:fotoruta, idMarcaVehiculos=:idmarcavehiculos, idModeloVehiculos=:idmodelovehiculos, idTipoCombustible=:idtipocombustible
-                WHERE idVehiculo=".$datos["idvehiculo"];
+        $sql = "UPDATE Vehiculos SET numeroPlaca=:numeroPlaca, anio=:anio, fotoRuta=:fotoRuta, observacion=:observacion, idMarcaVehiculos=:idMarcaVehiculos, idModeloVehiculos=:idModeloVehiculos, idTipoCombustible=:idTipoCombustible
+                WHERE idVehiculo=".$datos["idVehiculo"];
          $respuesta=[];
          $codeStatus=0;
         try
         {
             $db = $this->conteiner->get("db");
             $stament=$db->prepare($sql);
-            $stament->bindParam(":numeroplaca",$datos["numeroplaca"]);
+            $stament->bindParam(":numeroPlaca",$datos["numeroPlaca"]);
             $stament->bindParam(":anio",$datos["anio"]);
-            $stament->bindParam(":fotoruta",$imgRoute);
-            $stament->bindParam(":idmarcavehiculos",$datos["idmarcavehiculos"]);
-            $stament->bindParam(":idmodelovehiculos",$datos["idmodelovehiculos"]);
-            $stament->bindParam(":idtipocombustible",$datos["idtipocombustible"]);
+            $stament->bindParam(":fotoRuta",$imgRoute);
+            $stament->bindParam(":observacion",$datos["observacion"]);
+            $stament->bindParam(":idMarcaVehiculos",$datos["idMarcaVehiculos"]);
+            $stament->bindParam(":idModeloVehiculos",$datos["idModeloVehiculos"]);
+            $stament->bindParam(":idTipoCombustible",$datos["idTipoCombustible"]);
 
             if($stament->rowCount() > 0)
             {
@@ -267,6 +261,123 @@ class  VehiclesController extends BaseController {
             ->withJson($respuesta)
             ->withStatus($codeStatus);
 
+    }
+
+    public function  getModel(Request $request, Response $response, $args){
+        
+        #$datos = $request->getQueryParams();
+
+        $sql = "SELECT 	
+        idModeloVehiculos, 
+        modelo 
+        from ModelosVehiculos";
+        $array=[];
+        $codeStatus=0;
+
+
+        try
+        {
+            $db = $this->conteiner->get("db");
+            $resultado = $db->query($sql);
+
+            if ($resultado->rowCount() > 0)
+            {
+                $codeStatus=Constants::CREATE;
+                $response->getBody()->write(json_encode($resultado->fetchAll(\PDO::FETCH_CLASS,Models::class),JSON_NUMERIC_CHECK));
+            }
+            else
+            {
+                $codeStatus=Constants::NO_CONTENT;
+                array_push($array,["msg" =>"No hay registros en la base de datos"]);
+                //json_encode("po existen registros en la BBDD.");
+            }
+        }
+        catch(Exception $e)
+        {
+            array_push($array,["error" => $e->getMessage()]);
+            $codeStatus=Constants::SERVER_ERROR;
+        }
+         return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+
+                        ->withStatus($codeStatus);
+    }
+
+    public function  getBrand(Request $request, Response $response, $args){
+        
+        #$datos = $request->getQueryParams();
+
+        $sql = "SELECT 	
+        idMarcaVehiculos, 
+        marca 
+        from MarcasVehiculos";
+        $array=[];
+        $codeStatus=0;
+
+
+        try
+        {
+            $db = $this->conteiner->get("db");
+            $resultado = $db->query($sql);
+
+            if ($resultado->rowCount() > 0)
+            {
+                $codeStatus=Constants::CREATE;
+                $response->getBody()->write(json_encode($resultado->fetchAll(\PDO::FETCH_CLASS,Brands::class),JSON_NUMERIC_CHECK));
+            }
+            else
+            {
+                $codeStatus=Constants::NO_CONTENT;
+                array_push($array,["msg" =>"No hay registros en la base de datos"]);
+                //json_encode("po existen registros en la BBDD.");
+            }
+        }
+        catch(Exception $e)
+        {
+            array_push($array,["error" => $e->getMessage()]);
+            $codeStatus=Constants::SERVER_ERROR;
+        }
+         return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+
+                        ->withStatus($codeStatus);
+    }
+
+    public function  getGas(Request $request, Response $response, $args){
+        
+        #$datos = $request->getQueryParams();
+
+        $sql = "SELECT 	
+        idTipoCombustible, 
+        tipoCombustible 
+        from Combustible";
+        $array=[];
+        $codeStatus=0;
+
+
+        try
+        {
+            $db = $this->conteiner->get("db");
+            $resultado = $db->query($sql);
+
+            if ($resultado->rowCount() > 0)
+            {
+                $codeStatus=Constants::CREATE;
+                $response->getBody()->write(json_encode($resultado->fetchAll(\PDO::FETCH_CLASS,Gas::class),JSON_NUMERIC_CHECK));
+            }
+            else
+            {
+                $codeStatus=Constants::NO_CONTENT;
+                array_push($array,["msg" =>"No hay registros en la base de datos"]);
+                //json_encode("po existen registros en la BBDD.");
+            }
+        }
+        catch(Exception $e)
+        {
+            array_push($array,["error" => $e->getMessage()]);
+            $codeStatus=Constants::SERVER_ERROR;
+        }
+         return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+
+                        ->withStatus($codeStatus);
     }
 
 //        $valores= $this->conteiner->get("db_settings");

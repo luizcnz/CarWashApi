@@ -2,14 +2,14 @@
 
 namespace Api\models\quotes;
 
-class quotes
+class oil
 {
 
     public $idVehiculos;
     public $modelo;
     public $nombre_servicio;
-    public $fecha_hora;
-
+    public $fecha;
+    public $hora;
 }
 
 ?>

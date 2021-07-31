@@ -22,7 +22,7 @@ class  PricesController extends BaseController
             on Precios.idServicios = Servicios.idServicios
             INNER JOIN TiposVehiculos
             on Precios.idTipoVehiculos = TiposVehiculos.idTipoVehiculos
-            WHERE Precios.idTipoVehiculos=".$args["idtipovehiculo"];
+            WHERE Precios.idTipoVehiculos=".$args["idTipoVehiculos"];
             $array=[];
             $codeStatus=0;
         
@@ -71,7 +71,7 @@ class  PricesController extends BaseController
             on TiposVehiculos.idTipoVehiculos = ModelosVehiculos.idTipoVehiculos
             INNER JOIN Vehiculos
             on ModelosVehiculos.idModeloVehiculos = Vehiculos.idModeloVehiculos
-            WHERE Vehiculos.idUsuario=".$datos["iu"] ." and Vehiculos.idVehiculos =".$datos["iv"];
+            WHERE Vehiculos.idUsuario=".$datos["idUsuario"] ." and Vehiculos.idVehiculos =".$datos["idVehiculos"];
             $array=[];
             $codeStatus=0;
         
