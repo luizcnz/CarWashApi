@@ -22,7 +22,7 @@ class  PricesController extends BaseController
             on Precios.idServicios = Servicios.idServicios
             INNER JOIN TiposVehiculos
             on Precios.idTipoVehiculos = TiposVehiculos.idTipoVehiculos
-            WHERE Precios.idTipoVehiculos=".$args["idtipovehiculo"];
+            WHERE Precios.idTipoVehiculos=".$args["idTipoVehiculos"];
             $array=[];
             $codeStatus=0;
         
@@ -34,7 +34,7 @@ class  PricesController extends BaseController
                 if ($resultado->rowCount() > 0)
                 {
                     $codeStatus=Constants::CREATE;
-                    array_push($array, $resultado->fetchAll(\PDO::FETCH_CLASS,Prices::class));
+                    $response->getBody()->write(json_encode($resultado->fetchAll(\PDO::FETCH_CLASS,Prices::class),JSON_NUMERIC_CHECK));
                 }
                 else
                 {
@@ -71,7 +71,7 @@ class  PricesController extends BaseController
             on TiposVehiculos.idTipoVehiculos = ModelosVehiculos.idTipoVehiculos
             INNER JOIN Vehiculos
             on ModelosVehiculos.idModeloVehiculos = Vehiculos.idModeloVehiculos
-            WHERE Vehiculos.idUsuario=".$datos["iu"] ." and Vehiculos.idVehiculos =".$datos["iv"];
+            WHERE Vehiculos.idUsuario=".$datos["idUsuario"] ." and Vehiculos.idVehiculos =".$datos["idVehiculos"];
             $array=[];
             $codeStatus=0;
         

@@ -10,14 +10,17 @@ use Slim\Routing\RouteCollectorProxy;
 use API\controllers;
 $app -> group("/v1/vehicle",function (RouteCollectorProxy $group){
     //$group->get("","Api\controllers\VehiclesController:getAllVehicles");
-    $group->get("/all/{iu}","Api\controllers\VehiclesController:getAllVehicles");
+    $group->get("/all/{idUsuario}","Api\controllers\VehiclesController:getAllVehicles");
     $group->get("/one","Api\controllers\VehiclesController:getOneVehicle");
+    $group->get("/model","Api\controllers\VehiclesController:getModel");
+    $group->get("/brand","Api\controllers\VehiclesController:getBrand");
+    $group->get("/gas","Api\controllers\VehiclesController:getGas");
     $group->post("/add","Api\controllers\VehiclesController:addVehicle");
     $group->put("/update","Api\controllers\VehiclesController:updateVehicle");
 });
 
 $app -> group("/v1/price",function (RouteCollectorProxy $group){
-    $group->get("/all/{idtipovehiculo}","Api\controllers\PricesController:getAllPrices");
+    $group->get("/all/{idTipoVehiculos}","Api\controllers\PricesController:getAllPrices");
     $group->get("/one","Api\controllers\PricesController:getOnePrice");
     //$group->get("/usuario={idusuario}&tipovehiculo={idtipovehiculo}","Api\controllers\PricesController:getPricesByUserAndVehicle");
     
@@ -25,6 +28,7 @@ $app -> group("/v1/price",function (RouteCollectorProxy $group){
 
 $app -> group("/v1/quote",function (RouteCollectorProxy $group){
     $group->post("/add","Api\controllers\QuotesController:addQuote");
+    $group->get("/oil","Api\controllers\QuotesController:getOil");
     //$group->get("/usuario={idusuario}&tipovehiculo={idtipovehiculo}","Api\controllers\PricesController:getPricesByUserAndVehicle");
     
 });
