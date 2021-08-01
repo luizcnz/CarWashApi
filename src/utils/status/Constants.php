@@ -9,5 +9,14 @@
 		const REDIRECT_FOUND = 302;
 		const NO_CONTENT = 204;
 		const NO_AUTHORIZE=401;
+
+		const Ok="ok";
+		const FAIL_AUTH="failAuth";
+        const ERROR="error";
+        const NO_EXIST="noExist";
+
+        //Generadores
+        const GENERADOR_NUMERICO="0123456789";
+        const GENERADOR_FULL="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/";
 	}
 ?>

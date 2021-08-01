@@ -17,6 +17,7 @@ class ResponseServer
     public  $codeStatus;
     public  $message;
     public  $statusSession;
+    public  $token;
 
 //    public  function __construct($stt,$sttCode,$msg,$sttSession)
 //    {

@@ -13,15 +13,14 @@ use PHPMailer\PHPMailer\PHPMailer;
 class Authentication
 {
     private $messageError;
-    public function  generateCode()
+    public function  generateCodeAuth($length,$chars)
     {
         $factory = new Factory();
 
         $generator =$factory->getMediumStrengthGenerator();
-        $code = $generator->generateString(4,"0123456789");
+        $code = $generator->generateString($length,$chars);
         return $code;
     }
-
 
   public  function sendMessage($msg,$to)
   {
@@ -50,14 +49,15 @@ $err = curl_error($curl);
 curl_close($curl);
 
 if ($err) {
-    echo "cURL Error #:" . $err;
+    $this->messageError=$err;
+    return false;
 } else {
-    echo $response;
+  return true;
 }
   }
 
 
-  public function sendMailAuth($msg, $sendTo){
+  public function sendMailAuth($subject,$msg, $sendTo){
       $mail = new PHPMailer(true);
       try {
          // $mail->SMTPDebug = 2; // Sacar esta línea para no mostrar salida debug
@@ -73,13 +73,15 @@ if ($err) {
           $mail->addAddress($sendTo); // Mail del destinatario
 
           $mail->isHTML(true);
-          $mail->Subject = 'Confirmarción de cuenta'; // Asunto del mensaje
+          $mail->Subject = $subject; // Asunto del mensaje
           $mail->Body = $msg; // Contenido del mensaje (acepta HTML)
           // Contenido del mensaje alternativo (texto plano)
           $mail->send();
            return true;
-      } catch (\Exception $e) {
-          $this->setMessageError($mail->isError());
+      }
+      catch (\Exception $e)
+      {
+          $this->setMessageError($e->getMessage());
           return false;
        //  return 'El mensaje no se ha podido enviar, error: ', $mail->ErrorInfo;
       }
