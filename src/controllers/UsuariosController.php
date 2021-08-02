@@ -111,11 +111,10 @@ class UsuariosController extends BaseController
 
     //public function updateUser(Request $request, Response $response, $args)
 
-    public function  getAllUsers(Request $request, Response $response, $args){
+    public function  getUser(Request $request, Response $response, $args){
 
-        $sql = "SELECT * FROM Usuarios where usuario=:usuario and estadoSesion=1";
+        $sql = "SELECT * FROM Usuarios where usuario=:usuario and contrasena=:contrasena and estadoSesion=1";
         $array=[];
-        echo $sql;
         $codeStatus=0;
         $respuesta=false;
         $respuesta = new ResponseServer();
@@ -124,6 +123,7 @@ class UsuariosController extends BaseController
             $db = $this->conteiner->get("db");
             $stament = $db->prepare($sql);
             $stament->bindParam(":usuario",$args["usuario"]);
+            $stament->bindParam(":contrasena",$args["contrasena"]);
             $stament->execute();
 
             if ($stament->rowCount() > 0)
@@ -142,15 +142,28 @@ class UsuariosController extends BaseController
             }
             else
             {
-                array_push($array,["msg" =>"No hay registros en la base de datos"]);
+                $codeStatus = Constants::CREATE;
+                $respuesta->status=Constants::NO_EXIST;
+                $respuesta->message="El usuario no existe";
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=false ;
+                $respuesta->token=null;
+                $array["respuesta"] = $respuesta;
                 //json_encode("po existen registros en la BBDD.");
             }
         }
         catch(Exception $e)
         {
-            array_push($array,["error" => $e->getMessage()]);
+            $codeStatus = Constants::SERVER_ERROR;
+            $respuesta->status=Constants::ERROR;
+            $respuesta->message="error ".$e->getMessage();
+            $respuesta->codeStatus=$codeStatus;
+            $respuesta->statusSession=true;
+            $respuesta->token=null;
+            $array["respuesta"] = $respuesta;
         }
-        return $response->withJson($array);
+        return $response->withJson($array)
+            ->withStatus($codeStatus);
 
 
     }
@@ -364,6 +377,7 @@ class UsuariosController extends BaseController
 
                 if($array["pass"]==$datos["contrasena"])
                 {
+                   // $url=Constants::URL_BASE."/users/".$datos["usuario"]."/".$datos["contrasena"];
                     $codeStatus = Constants::CREATE;
                     $respuesta->status=Constants::Ok;
                     $respuesta->message=$array["idUsuario"];
@@ -571,5 +585,36 @@ class UsuariosController extends BaseController
             $codeStatus=Constants::SERVER_ERROR;
               return false;
         }
+    }
+    public function  getImage(Request $request, Response $response,array $args)
+    {
+
+        $datos= $datos = $request->getQueryParams();
+
+         if ($datos["root"]=="user")
+         {
+             $file = __DIR__ . "/../src/img/user/" . $datos["name"];
+             if (file_exists($file)) {
+                 return $response->withHeader("Location", "/src/img/user" . $datos["name"])
+                     ->withStatus(302);
+
+             } else
+                 return $response->withHeader("Location", "/src/img/user/default.jgp")
+                     ->withStatus(302);
+         }
+
+         else
+         {
+             $file = __DIR__ . "/../src/img/auto/" . $datos["name"];
+             if (file_exists($file)) {
+                 return $response->withHeader("Location", "/src/img/auto" . $datos["name"])
+                     ->withStatus(302);
+
+             } else
+                 return $response->withHeader("Location", "/src/img/auto/default.jgp")
+                     ->withStatus(302);
+         }
+
+
     }
 }
