@@ -1,7 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Dany_Hernandez
- * Date: 13/7/2021
- * Time: 16:44
- */
+
+namespace Api\models\vehicles;
+
+class Types
+{
+    public $idTipoVehiculos;
+    public $tipo_vehiculo;
+
+}
+
+?>
