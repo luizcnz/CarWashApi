@@ -331,18 +331,21 @@ class UsuariosController extends BaseController
 
         $datos=$request->getParsedBody();
 
-        $sql = "SELECT idUsuario, contrasena as pass, estadoSesion as status FROM Usuarios WHERE usuario='".$datos["usuario"]."'";
-
+        $sql = "SELECT idUsuario, contrasena as pass, estadoSesion as status FROM Usuarios WHERE usuario=:usuario";
+        echo  $sql;
         $codeStatus=0;
         $respuesta=false;
         $respuesta = new ResponseServer();
         try
         {
-             $db = $this->conteiner->get("db");
-            $resultado = $db->query($sql);
-            if ($resultado->rowCount() > 0)
+            $db = $this->conteiner->get("db");
+            $stament =$db->prepare($sql);
+            $stament->bindParam(":usuario",$datos["usuario"]);
+            $stament->execute();
+            echo  "Holl";
+            if ($stament->rowCount() > 0)
             {
-                $array= get_object_vars($resultado->fetch());
+                $array= get_object_vars($stament->fetch());
 
                 if($array["pass"]==$datos["contrasena"])
                 {
@@ -366,7 +369,7 @@ class UsuariosController extends BaseController
             }
             else
             {
-                $codeStatus = Constants::NO_CONTENT;
+                $codeStatus = Constants::CREATE;
                 $respuesta->status=Constants::NO_EXIST;
                 $respuesta->message="Usuario no existe";
                 $respuesta->codeStatus=$codeStatus;
@@ -383,9 +386,11 @@ class UsuariosController extends BaseController
             $respuesta->statusSession=false;
             $respuesta->token=null;
         }
+
+
         $response->getBody()->write(json_encode($respuesta,JSON_NUMERIC_CHECK));
         return $response->withHeader('Content-type', 'application/json;charset=utf-8')
-            ->withStatus($codeStatus);return $respuesta;
+            ->withStatus($codeStatus);
     }
 
     public function logout(Request $request, Response $response,$args){
