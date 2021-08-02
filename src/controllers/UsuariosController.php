@@ -113,16 +113,32 @@ class UsuariosController extends BaseController
 
     public function  getAllUsers(Request $request, Response $response, $args){
 
-        $sql = "SELECT * FROM Usuarios";
+        $sql = "SELECT * FROM Usuarios where usuario=:usuario and estadoSesion=1";
         $array=[];
+        echo $sql;
+        $codeStatus=0;
+        $respuesta=false;
+        $respuesta = new ResponseServer();
         try
         {
             $db = $this->conteiner->get("db");
-            $resultado = $db->query($sql);
+            $stament = $db->prepare($sql);
+            $stament->bindParam(":usuario",$args["usuario"]);
+            $stament->execute();
 
-            if ($resultado->rowCount() > 0)
+            if ($stament->rowCount() > 0)
             {
-                array_push($array, $resultado->fetchAll());
+                $array=get_object_vars($stament->fetch());
+
+                $codeStatus = Constants::CREATE;
+                $respuesta->status=Constants::Ok;
+                $respuesta->message=Constants::Ok;
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
+                $array["respuesta"] = $respuesta;
+
+
             }
             else
             {

@@ -13,7 +13,7 @@ use Api\controllers\VehiclesController;
 //    $group->get("",VehiclesController::class.":getAllVehicles");
 //});
 $app -> group("/v1/users",function (RouteCollectorProxy $group){
-    $group->get("",UsuariosController::class.":getAllUsers");
+    $group->get("/{usuario}",UsuariosController::class.":getAllUsers");
     
     $group->post("/verify",UsuariosController::class.":verifyNumberPhone");
     $group->post("/verify/resend",UsuariosController::class.":resendVerify");
