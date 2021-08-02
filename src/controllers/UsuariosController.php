@@ -109,7 +109,7 @@ class UsuariosController extends BaseController
                 ->withStatus($codeStatus);
     }
 
-    /*public function updateUser(Request $request, Response $response, $args)*/
+    //public function updateUser(Request $request, Response $response, $args)
 
     public function  getAllUsers(Request $request, Response $response, $args){
 
@@ -327,19 +327,18 @@ class UsuariosController extends BaseController
                    ->withStatus($codeStatus);
     }
 
-
     public function sessionStart(Request $request, Response $response,$args){
 
         $datos=$request->getParsedBody();
 
-        $sql = "SELECT contrasena as pass FROM Usuarios WHERE usuario='".$datos["usuario"]."'";
+        $sql = "SELECT idUsuario, contrasena as pass, estadoSesion as status FROM Usuarios WHERE usuario='".$datos["usuario"]."'";
 
         $codeStatus=0;
         $respuesta=false;
         $respuesta = new ResponseServer();
         try
         {
-            $db = $this->conteiner->get("db");
+             $db = $this->conteiner->get("db");
             $resultado = $db->query($sql);
             if ($resultado->rowCount() > 0)
             {
@@ -349,10 +348,11 @@ class UsuariosController extends BaseController
                 {
                     $codeStatus = Constants::CREATE;
                     $respuesta->status=Constants::Ok;
-                    $respuesta->message="Usuario Loggeado";
+                    $respuesta->message=$array["idUsuario"];
                     $respuesta->codeStatus=$codeStatus;
-                    $respuesta->statusSession=$array["status"];
+                    $respuesta->statusSession=true;
                     $respuesta->token=null;
+                    $this->updateState($array["idUsuario"],$db,true);
                 }
                 else
                 {
@@ -388,12 +388,11 @@ class UsuariosController extends BaseController
             ->withStatus($codeStatus);return $respuesta;
     }
 
-
     public function logout(Request $request, Response $response,$args){
 
         $datos=$request->getParsedBody();
 
-        $sql = "SELECT contrasena as pass,estadoSesion as state FROM Usuarios WHERE usuario='".$datos["usuario"]."'";
+        $sql = "SELECT idUsuario,contrasena as pass,estadoSesion as state FROM Usuarios WHERE usuario='".$datos["usuario"]."'";
 
         $codeStatus=0;
         $respuesta=true;
@@ -409,8 +408,7 @@ class UsuariosController extends BaseController
 
                 if($array["pass"]==$datos["contrasena"])
                 {
-                    $sql = "UPDATE Usuarios set estadoSesion=0 WHERE usuario='".$datos["usuario"]."'";
-                    $resultado = $db->query($sql);
+                    $this->updateState($array["idUsuario"],$db,false);
                     $codeStatus = Constants::CREATE;
                     $respuesta->status=Constants::Ok;
                     $respuesta->message="Sesión finalizado";
@@ -451,7 +449,6 @@ class UsuariosController extends BaseController
         return $response->withHeader('Content-type', 'application/json;charset=utf-8')
             ->withStatus($codeStatus);return $respuesta;
     }
-
 
     public function resetPassword(Request $request, Response $response,$args){
 
@@ -536,4 +533,23 @@ class UsuariosController extends BaseController
             ->withStatus($codeStatus);
     }
 
+
+    /*Actualiza el estado de la conexi*/
+    public function updateState($idUser,$db,$state)
+    {
+        $sql = "UPDATE Usuarios SET estadoSesion=:state WHERE idUsuario=".$idUser;
+        try
+        {
+            $stament=$db->prepare($sql);
+            $stament->bindParam(":estado",$state);
+            $stament->execute();
+            return true;
+        }
+        catch(\PDOException $e)
+        {
+            $respuesta=["status" =>"error", "msg"=>$e->getMessage()];
+            $codeStatus=Constants::SERVER_ERROR;
+              return false;
+        }
+    }
 }
