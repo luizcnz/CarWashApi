@@ -332,7 +332,7 @@ class UsuariosController extends BaseController
         $datos=$request->getParsedBody();
 
         $sql = "SELECT idUsuario, contrasena as pass, estadoSesion as status FROM Usuarios WHERE usuario=:usuario";
-        echo  $sql;
+
         $codeStatus=0;
         $respuesta=false;
         $respuesta = new ResponseServer();
