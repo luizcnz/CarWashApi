@@ -162,7 +162,8 @@ class UsuariosController extends BaseController
             $respuesta->token=null;
             $array["respuesta"] = $respuesta;
         }
-        return $response->withJson($array)
+        $response->getBody()->write(json_encode($array,JSON_NUMERIC_CHECK));
+        return $response->withHeader('Content-type', 'application/json;charset=utf-8')
             ->withStatus($codeStatus);
 
 
