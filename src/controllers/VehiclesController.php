@@ -14,6 +14,7 @@ use Api\models\vehicles\Vehicles;
 use Api\models\vehicles\Models;
 use Api\models\vehicles\Brands;
 use Api\models\vehicles\Gas;
+use Api\models\vehicles\Types;
 use Api\utils\status\Constants;
 
 class  VehiclesController extends BaseController {
@@ -268,7 +269,8 @@ class  VehiclesController extends BaseController {
         $sql = "SELECT 	
         idModeloVehiculos, 
         modelo 
-        from ModelosVehiculos";
+        from ModelosVehiculos
+        where idMarcaVehiculos=".$args["idMarcaVehiculos"];
         $array=[];
         $codeStatus=0;
 
@@ -321,6 +323,46 @@ class  VehiclesController extends BaseController {
             {
                 $codeStatus=Constants::CREATE;
                 $response->getBody()->write(json_encode($resultado->fetchAll(\PDO::FETCH_CLASS,Brands::class),JSON_NUMERIC_CHECK));
+            }
+            else
+            {
+                $codeStatus=Constants::NO_CONTENT;
+                array_push($array,["msg" =>"No hay registros en la base de datos"]);
+                //json_encode("po existen registros en la BBDD.");
+            }
+        }
+        catch(Exception $e)
+        {
+            array_push($array,["error" => $e->getMessage()]);
+            $codeStatus=Constants::SERVER_ERROR;
+        }
+         return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+
+                        ->withStatus($codeStatus);
+    }
+
+    public function  getType(Request $request, Response $response, $args){
+        
+        #$datos = $request->getQueryParams();
+
+        $sql = "SELECT 	
+        TiposVehiculos.idTipoVehiculos, 
+        TiposVehiculos.tipo_vehiculo 
+        from TiposVehiculos
+        where TiposVehiculos.idTipoVehiculos=".$args["idTipoVehiculos"];
+        $array=[];
+        $codeStatus=0;
+
+
+        try
+        {
+            $db = $this->conteiner->get("db");
+            $resultado = $db->query($sql);
+
+            if ($resultado->rowCount() > 0)
+            {
+                $codeStatus=Constants::CREATE;
+                $response->getBody()->write(json_encode($resultado->fetchAll(\PDO::FETCH_CLASS,Types::class),JSON_NUMERIC_CHECK));
             }
             else
             {

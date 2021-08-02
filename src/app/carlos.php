@@ -12,8 +12,9 @@ $app -> group("/v1/vehicle",function (RouteCollectorProxy $group){
     //$group->get("","Api\controllers\VehiclesController:getAllVehicles");
     $group->get("/all/{idUsuario}","Api\controllers\VehiclesController:getAllVehicles");
     $group->get("/one","Api\controllers\VehiclesController:getOneVehicle");
-    $group->get("/model","Api\controllers\VehiclesController:getModel");
+    $group->get("/model/{idMarcaVehiculos}","Api\controllers\VehiclesController:getModel");
     $group->get("/brand","Api\controllers\VehiclesController:getBrand");
+    $group->get("/type/{idTipoVehiculos}","Api\controllers\VehiclesController:getType");
     $group->get("/gas","Api\controllers\VehiclesController:getGas");
     $group->post("/add","Api\controllers\VehiclesController:addVehicle");
     $group->put("/update","Api\controllers\VehiclesController:updateVehicle");
