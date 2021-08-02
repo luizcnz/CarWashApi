@@ -342,7 +342,6 @@ class UsuariosController extends BaseController
             $stament =$db->prepare($sql);
             $stament->bindParam(":usuario",$datos["usuario"]);
             $stament->execute();
-            echo  "Holl";
             if ($stament->rowCount() > 0)
             {
                 $array= get_object_vars($stament->fetch());
