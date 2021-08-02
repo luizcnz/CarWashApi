@@ -16,5 +16,9 @@ $app -> group("/v1/users",function (RouteCollectorProxy $group){
     $group->get("",UsuariosController::class.":getAllUsers");
     
     $group->post("/verify",UsuariosController::class.":verifyNumberPhone");
+    $group->post("/verify/resend",UsuariosController::class.":resendVerify");
     $group->post("/add",UsuariosController::class.":addUser");
+    $group->post("/login",UsuariosController::class.":sessionStart");
+    $group->post("/logout",UsuariosController::class.":logout");
+    $group->put("/resetpass",UsuariosController::class.":resetPassword");
 });
