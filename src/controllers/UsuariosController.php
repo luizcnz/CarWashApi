@@ -22,7 +22,7 @@ class UsuariosController extends BaseController
         $datos = $request->getParsedBody();
        // print_r($datos);
         $sql = "INSERT INTO Usuarios (`nombre`, `apellido`, `direccion`, `correo`, `telefono`, `usuario`, `contrasena`,urlFoto,estadoSesion) 
-                  VALUES (:nombre,:apellido, :direccion,:mail,:telefono,:usuario,:pass,:urlFoto,:estado)";
+                  destinatariombre,:apellido, :direccion,:mail,:telefono,:usuario,:pass,:urlFoto,:estado)";
 
         $respuesta = new ResponseServer();
         $codeStatus=0;
@@ -31,9 +31,9 @@ class UsuariosController extends BaseController
           * se valida cual es el metodo de verificación que uso el usuario y se envian
           * a la funcion validar.
           */
-         if($datos["verificationMethod"]=="mail")
+         if($datos["metodoVerificacion"]=="mail")
                 $auth=$this->Verify($datos["correo"],$datos["codigo"],$datos["token"]);
-         else  if($datos["verificationMethod"]=="phoneNumber")
+         else  if($datos["metodoVerificacion"]=="phoneNumber")
                 $auth=$this->Verify($datos["telefono"],$datos["codigo"],$datos["token"]);
 
         //Si la verificación es correcta se procede a registrar al usuario
@@ -43,12 +43,12 @@ class UsuariosController extends BaseController
 
               /*Se realiza la conversion de la foto de arreglo de byte a jpg*/
              if($datos["foto"]==""||$datos["foto"]==null)
-                $urlFoto=Constants::URL_BASE."/img/default.jpg";
+                $urlFoto=Constants::URL_BASE."/img/user/default.jpg";
              else
              {
                  $converter = new ConvertImages();
                  $urlFoto = $converter->convertImage($datos["foto"],$datos["nombre"]);
-                 $urlFoto=Constants::URL_BASE."/img/".$urlFoto;
+                 $urlFoto=Constants::URL_BASE."/img/user/".$urlFoto;
              }
 
              try
@@ -192,27 +192,24 @@ class UsuariosController extends BaseController
        $codeStatus=0;
        try
        {
-           if($datos["VericationMethod"] =="mail")
+           if($datos["metodoVerificacion"] =="mail")
            {
-
-               $wasSended= $auth->sendMailAuth("Verifcación de cuenta.","Su codigo de verificacion es : ".$code,$datos["ValueMethod"]);
-
+               $wasSended= $auth->sendMailAuth("Verifcación de cuenta.","Su codigo de verificacion es : ".$code,$datos["destinatario"]);
            }
-           else if($datos["VericationMethod"] =="phoneNumber")
+           else if($datos["metodoVerificacion"] =="phoneNumber")
            {
-               $wasSended= $auth->sendMessage("",$datos["ValueMethod"],"69958");
+               $wasSended= $auth->sendMessage("",$datos["destinatario"],"69958");
                $wasSended=true;
            }
            //Se crea la consulta
-           $sql = "INSERT INTO ValidarCuenta (formaVerificacion, codigoVerificacion,token) VALUES(:phoneOMail,:code,:token)
-                   ON DUPLICATE KEY UPDATE codigoVerificacion=:code, formaVerificacion=:phoneOMail";
-
+           $sql = "INSERT INTO ValidarCuenta (formaVerificacion, codigoVerificacion,token) values (:phoneOMail,:code,:token)
+                       ON DUPLICATE KEY UPDATE codigoVerificacion=:code, formaVerificacion=:phoneOMail";
            if($wasSended)
            {
                // $auth->sendMessage("Su codigo de verificación es: ".$code,"+50495079139");
                $db = $this->conteiner->get("db");
                $stament = $db->prepare($sql);
-               $stament->bindParam(":phoneOMail", $datos["ValueMethod"]);
+               $stament->bindParam(":phoneOMail", $datos["destinatario"]);
                $stament->bindParam(":code", $code);
                $stament->bindParam(":token",$tokenAuht);
                $res = $stament->execute();
@@ -254,7 +251,6 @@ class UsuariosController extends BaseController
    {
 
        $sql = "SELECT codigoVerificacion as code, formaVerificacion as method  FROM ValidarCuenta WHERE token='".$token."'";
-
        $codigo=0;
        $respuesta=false;
        try
@@ -300,15 +296,15 @@ class UsuariosController extends BaseController
         $codeStatus=0;
         try
         {
-        if($datos["VericationMethod"] =="mail")
+        if($datos["metodoVerificacion"] =="mail")
         {
 
-        $wasSended= $auth->sendMailAuth("Verifcación de cuenta.","Su codigo de verificacion es : ".$code,$datos["ValueMethod"]);
+        $wasSended= $auth->sendMailAuth("Verifcación de cuenta.","Su codigo de verificacion es : ".$code,$datos["destinatario"]);
 
         }
-        else if($datos["VericationMethod"] =="phoneNumber")
+        else if($datos["metodoVerificacion"] =="phoneNumber")
         {
-            $wasSended= $auth->sendMessage("",$datos["ValueMethod"],"69958");
+            $wasSended= $auth->sendMessage("",$datos["destinatario"],"69958");
             $wasSended=true;
         }
         //Se crea la consulta
@@ -319,7 +315,7 @@ class UsuariosController extends BaseController
             // $auth->sendMessage("Su codigo de verificación es: ".$code,"+50495079139");
             $db = $this->conteiner->get("db");
             $stament = $db->prepare($sql);
-            $stament->bindParam(":phoneOMail", $datos["ValueMethod"]);
+            $stament->bindParam(":phoneOMail", $datos["destinatario"]);
             $stament->bindParam(":code", $code);
             $stament->bindParam(":token",$tokenAuht);
             $res = $stament->execute();
