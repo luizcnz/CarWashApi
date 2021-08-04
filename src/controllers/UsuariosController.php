@@ -183,65 +183,79 @@ class UsuariosController extends BaseController
     public function verifyNumberPhone(Request $request, Response $response,$args){
         $datos = $request->getParsedBody();
 
+        $respuesta = new ResponseServer();
+        $codeStatus=0;
        // se genera el codigo de verifiacion
-       $auth=new Authentication();
-       $code= $auth->generateCodeAuth(4,Constants::GENERADOR_NUMERICO);
-       $tokenAuht=$auth->generateCodeAuth(10,Constants::GENERADOR_FULL);
-       $respuesta = new ResponseServer();
+        //Valid si existe usuarios registrados
+        $existeUsuario=$this->existUser($datos["destinatario"],$this->conteiner->get("db"));
 
-       $codeStatus=0;
-       try
-       {
-           if($datos["metodoVerificacion"] =="mail")
-           {
-               $wasSended= $auth->sendMailAuth("Verifcación de cuenta.","Su codigo de verificacion es : ".$code,$datos["destinatario"]);
-           }
-           else if($datos["metodoVerificacion"] =="phoneNumber")
-           {
-               $wasSended= $auth->sendMessage("",$datos["destinatario"],"69958");
-               $wasSended=true;
-           }
-           //Se crea la consulta
-           $sql = "INSERT INTO ValidarCuenta (formaVerificacion, codigoVerificacion,token) values (:phoneOMail,:code,:token)
+        if(!$existeUsuario) {
+            $auth=new Authentication();
+            $code= $auth->generateCodeAuth(4,Constants::GENERADOR_NUMERICO);
+            $tokenAuht=$auth->generateCodeAuth(10,Constants::GENERADOR_FULL);
+
+            try
+            {
+                if($datos["metodoVerificacion"] =="mail")
+                {
+                    $wasSended= $auth->sendMailAuth("Verifcación de cuenta.","Su codigo de verificacion es : ".$code,$datos["destinatario"]);
+                }
+                else if($datos["metodoVerificacion"] =="phoneNumber")
+                {
+                    $wasSended= $auth->sendMessage("",$datos["destinatario"],"69958");
+                    $wasSended=true;
+                }
+                //Se crea la consulta
+                $sql = "INSERT INTO ValidarCuenta (formaVerificacion, codigoVerificacion,token) values (:phoneOMail,:code,:token)
                        ON DUPLICATE KEY UPDATE codigoVerificacion=:code, formaVerificacion=:phoneOMail";
-           if($wasSended)
-           {
-               // $auth->sendMessage("Su codigo de verificación es: ".$code,"+50495079139");
-               $db = $this->conteiner->get("db");
-               $stament = $db->prepare($sql);
-               $stament->bindParam(":phoneOMail", $datos["destinatario"]);
-               $stament->bindParam(":code", $code);
-               $stament->bindParam(":token",$tokenAuht);
-               $res = $stament->execute();
+                if($wasSended)
+                {
+                    // $auth->sendMessage("Su codigo de verificación es: ".$code,"+50495079139");
+                    $db = $this->conteiner->get("db");
+                    $stament = $db->prepare($sql);
+                    $stament->bindParam(":phoneOMail", $datos["destinatario"]);
+                    $stament->bindParam(":code", $code);
+                    $stament->bindParam(":token",$tokenAuht);
+                    $res = $stament->execute();
 
-               if ($res)
-                   $codeStatus = Constants::CREATE;
-               $respuesta->status="ok";
-               $respuesta->message="Código de verificación enviado";
-               $respuesta->codeStatus=$codeStatus;
-               $respuesta->statusSession=false;
-               $respuesta->token=$tokenAuht;
-           }
-           else
-           {
-               $codeStatus = Constants::SERVER_ERROR;
-               $respuesta->status=Constants::FAIL_AUTH;
-               $respuesta->message ="No se ha podido código de verificación". $auth->getMessageError();
-               $respuesta->codeStatus=$codeStatus;
-               $respuesta->statusSession=false;
-               $respuesta->token=null;
-           }
+                    if ($res)
+                        $codeStatus = Constants::CREATE;
+                    $respuesta->status="ok";
+                    $respuesta->message="Código de verificación enviado";
+                    $respuesta->codeStatus=$codeStatus;
+                    $respuesta->statusSession=false;
+                    $respuesta->token=$tokenAuht;
+                }
+                else
+                {
+                    $codeStatus = Constants::SERVER_ERROR;
+                    $respuesta->status=Constants::FAIL_AUTH;
+                    $respuesta->message ="No se ha podido código de verificación: ". $auth->getMessageError();
+                    $respuesta->codeStatus=$codeStatus;
+                    $respuesta->statusSession=false;
+                    $respuesta->token=null;
+                }
 
-       }
-           catch(\PDOException $e)
-       {
-           $codeStatus = Constants::SERVER_ERROR;
-           $respuesta->status=Constants::FAIL_AUTH;
-           $respuesta->message= "Error al solicitar recuperacion de contraseña: ".$e->getMessage();
-           $respuesta->codeStatus=$codeStatus;
-           $respuesta->statusSession=false;
-           $respuesta->token=null;
-       }
+            }
+            catch(\PDOException $e)
+            {
+                $codeStatus = Constants::SERVER_ERROR;
+                $respuesta->status=Constants::FAIL_AUTH;
+                $respuesta->message= "Error al solicitar recuperacion de contraseña: ".$e->getMessage();
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=false;
+                $respuesta->token=null;
+            }
+        }
+         else
+         {
+             $codeStatus = Constants::CREATE;
+             $respuesta->status=Constants::USER_EXIST;
+             $respuesta->message= "Ya existe un usuario registrado";
+             $respuesta->codeStatus=$codeStatus;
+             $respuesta->statusSession=false;
+             $respuesta->token=null;
+         }
        $response->getBody()->write(json_encode($respuesta,JSON_NUMERIC_CHECK));
        return $response->withHeader('Content-type', 'application/json;charset=utf-8')
            ->withStatus($codeStatus);
@@ -287,70 +301,74 @@ class UsuariosController extends BaseController
     {
 
         $datos = $request->getParsedBody();
-            // se genera el codigo de verifiacion
-        $auth=new Authentication();
-        $code= $auth->generateCodeAuth(4,Constants::GENERADOR_NUMERICO);
-        $tokenAuht=$datos["token"];
+        // se genera el codigo de verifiacion
         $respuesta = new ResponseServer();
 
         $codeStatus=0;
-        try
+        //Valid si existe usuarios registrados
+        $existeUsuario=$this->existUser($datos["destinatario"],$this->conteiner->get("db"));
+        if(!$existeUsuario)
         {
-        if($datos["metodoVerificacion"] =="mail")
-        {
+            $auth=new Authentication();
+            $code= $auth->generateCodeAuth(4,Constants::GENERADOR_NUMERICO);
+            $tokenAuht=$datos["token"];
 
-        $wasSended= $auth->sendMailAuth("Verifcación de cuenta.","Su codigo de verificacion es : ".$code,$datos["destinatario"]);
+            try {
+                if ($datos["metodoVerificacion"] == "mail") {
+                    $wasSended = $auth->sendMailAuth("Verifcación de cuenta.", "Su codigo de verificacion es : " . $code, $datos["destinatario"]);
+                } else if ($datos["metodoVerificacion"] == "phoneNumber") {
+                    $wasSended = $auth->sendMessage("", $datos["destinatario"], "69958");
+                    $wasSended = true;
+                }
+                //Se crea la consulta
+                $sql = "UPDATE ValidarCuenta set formaVerificacion=:phoneOMail, codigoVerificacion=:code WHERE token=:token";
 
-        }
-        else if($datos["metodoVerificacion"] =="phoneNumber")
-        {
-            $wasSended= $auth->sendMessage("",$datos["destinatario"],"69958");
-            $wasSended=true;
-        }
-        //Se crea la consulta
-        $sql = "UPDATE ValidarCuenta set formaVerificacion=:phoneOMail, codigoVerificacion=:code WHERE token=:token";
+                if ($wasSended) {
+                    // $auth->sendMessage("Su codigo de verificación es: ".$code,"+50495079139");
+                    $db = $this->conteiner->get("db");
+                    $stament = $db->prepare($sql);
+                    $stament->bindParam(":phoneOMail", $datos["destinatario"]);
+                    $stament->bindParam(":code", $code);
+                    $stament->bindParam(":token", $tokenAuht);
+                    $res = $stament->execute();
 
-        if($wasSended)
-        {
-            // $auth->sendMessage("Su codigo de verificación es: ".$code,"+50495079139");
-            $db = $this->conteiner->get("db");
-            $stament = $db->prepare($sql);
-            $stament->bindParam(":phoneOMail", $datos["destinatario"]);
-            $stament->bindParam(":code", $code);
-            $stament->bindParam(":token",$tokenAuht);
-            $res = $stament->execute();
+                    if ($res)
+                        $codeStatus = Constants::CREATE;
+                    $respuesta->status = "ok";
+                    $respuesta->message = "Código de verificación renviado";
+                    $respuesta->codeStatus = $codeStatus;
+                    $respuesta->statusSession = false;
+                    $respuesta->token = $tokenAuht;
+                } else {
+                    $codeStatus = Constants::SERVER_ERROR;
+                    $respuesta->status = Constants::FAIL_AUTH;
+                    $respuesta->message = "No se ha podido reenviar código de verificación" . $auth->getMessageError();
+                    $respuesta->codeStatus = $codeStatus;
+                    $respuesta->statusSession = false;
+                    $respuesta->token = null;
+                }
 
-            if ($res)
-                $codeStatus = Constants::CREATE;
-            $respuesta->status="ok";
-            $respuesta->message="Código de verificación renviado";
-            $respuesta->codeStatus=$codeStatus;
-            $respuesta->statusSession=false;
-            $respuesta->token=$tokenAuht;
+            } catch (\PDOException $e) {
+                $codeStatus = Constants::SERVER_ERROR;
+                $respuesta->status = Constants::FAIL_AUTH;
+                $respuesta->message = "Error al envirar verificacion: " . $e->getMessage();
+                $respuesta->codeStatus = $codeStatus;
+                $respuesta->statusSession = false;
+                $respuesta->token = null;
+            }
         }
         else
         {
-            $codeStatus = Constants::SERVER_ERROR;
-            $respuesta->status=Constants::FAIL_AUTH;
-            $respuesta->message ="No se ha podido reenviar código de verificación". $auth->getMessageError();
+            $codeStatus = Constants::CREATE;
+            $respuesta->status=Constants::USER_EXIST;
+            $respuesta->message= "Ya existe un usuario registrado";
             $respuesta->codeStatus=$codeStatus;
             $respuesta->statusSession=false;
             $respuesta->token=null;
         }
-
-        }
-        catch(\PDOException $e)
-               {
-                   $codeStatus = Constants::SERVER_ERROR;
-                   $respuesta->status=Constants::FAIL_AUTH;
-                   $respuesta->message= "Error al envirar verificacion: ".$e->getMessage();
-                   $respuesta->codeStatus=$codeStatus;
-                   $respuesta->statusSession=false;
-                   $respuesta->token=null;
-               }
-               $response->getBody()->write(json_encode($respuesta,JSON_NUMERIC_CHECK));
-               return $response->withHeader('Content-type', 'application/json;charset=utf-8')
-                   ->withStatus($codeStatus);
+       $response->getBody()->write(json_encode($respuesta,JSON_NUMERIC_CHECK));
+       return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+           ->withStatus($codeStatus);
     }
 
     public function sessionStart(Request $request, Response $response,$args){
@@ -583,6 +601,33 @@ class UsuariosController extends BaseController
               return false;
         }
     }
+/*Valida si existe un usuario registrado
+*/
+    private function existUser($destinatario,$db)
+    {
+        $sql = "SELECT * FROM Usuarios WHERE telefono='".$destinatario."' OR correo='".$destinatario."'";
+        $respuesta=false;
+        try
+        {
+            $db = $this->conteiner->get("db");
+            $resultado = $db->query($sql);
+
+            if ($resultado->rowCount() > 0)
+            {
+                    $respuesta = true;
+            }
+            else
+            {
+                $respuesta=false;
+            }
+        }
+        catch(Exception $e)
+        {
+            $respuesta=false;
+        }
+        return $respuesta;
+    }
+
     public function  getImage(Request $request, Response $response,array $args)
     {
 

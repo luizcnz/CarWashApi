@@ -14,7 +14,7 @@
 		const FAIL_AUTH="failAuth";
         const ERROR="error";
         const NO_EXIST="noExist";
-
+        const USER_EXIST="userExist";
         //Generadores
         const GENERADOR_NUMERICO="0123456789";
         const GENERADOR_FULL="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/";
