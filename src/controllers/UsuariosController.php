@@ -20,9 +20,9 @@ class UsuariosController extends BaseController
     public function addUser(Request $request, Response $response, $args)
     {
         $datos = $request->getParsedBody();
-       // print_r($datos);
-        $sql = "INSERT INTO Usuarios (`nombre`, `apellido`, `direccion`, `correo`, `telefono`, `usuario`, `contrasena`,urlFoto,estadoSesion) 
-                  destinatariombre,:apellido, :direccion,:mail,:telefono,:usuario,:pass,:urlFoto,:estado)";
+
+        $sql = "INSERT INTO Usuarios (`nombre`, `apellido`, `direccion`, `correo`, `telefono`, `usuario`, `contrasena`,urlFoto,estadoSesion) VALUES 
+                (:nombre,:apellido, :direccion,:mail,:telefono,:usuario,:pass,:urlFoto,:estado)";
 
         $respuesta = new ResponseServer();
         $codeStatus=0;
@@ -47,7 +47,7 @@ class UsuariosController extends BaseController
              else
              {
                  $converter = new ConvertImages();
-                 $urlFoto = $converter->convertImage($datos["foto"],$datos["nombre"]);
+                 $urlFoto = $converter->convertImage($datos["foto"],$datos["usuario"],"user");
                  $urlFoto=Constants::URL_BASE."/img/user/".$urlFoto;
              }
 
@@ -265,6 +265,7 @@ class UsuariosController extends BaseController
    {
 
        $sql = "SELECT codigoVerificacion as code, formaVerificacion as method  FROM ValidarCuenta WHERE token='".$token."'";
+
        $codigo=0;
        $respuesta=false;
        try
@@ -276,18 +277,22 @@ class UsuariosController extends BaseController
            {
                 $array= get_object_vars($resultado->fetch());
 
-
               //  echo strval($array[0])."=".$code."  ".strval($array[0])."=".$method;
                 if(($array["code"])==$code and  $array["method"]==$method)
                 {
                     $respuesta = true;
                 }
                 else
+                {
+                    echo "hola";
                     $respuesta = false;
+                }
+
            }
            else
            {
                $respuesta=false;
+
            }
        }
        catch(Exception $e)
