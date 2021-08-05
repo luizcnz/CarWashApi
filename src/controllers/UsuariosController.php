@@ -404,7 +404,7 @@ class UsuariosController extends BaseController
                     $respuesta->codeStatus=$codeStatus;
                     $respuesta->statusSession=true;
                     $respuesta->token=null;
-                    $this->updateState($array["idUsuario"],$db,true);
+                    $this->updateState($array["idUsuario"],$db,1);
                 }
                 else
                 {
@@ -462,7 +462,7 @@ class UsuariosController extends BaseController
 
                 if($array["pass"]==$datos["contrasena"])
                 {
-                    $this->updateState($array["idUsuario"],$db,false);
+                    $this->updateState($array["idUsuario"],$db,0);
                     $codeStatus = Constants::CREATE;
                     $respuesta->status=Constants::Ok;
                     $respuesta->message="Sesión finalizado";
@@ -482,7 +482,7 @@ class UsuariosController extends BaseController
             }
             else
             {
-                $codeStatus = Constants::NO_CONTENT;
+                $codeStatus = Constants::CREATE;
                 $respuesta->status=Constants::NO_EXIST;
                 $respuesta->message="Usuario no existe";
                 $respuesta->codeStatus=$codeStatus;
@@ -501,7 +501,7 @@ class UsuariosController extends BaseController
         }
         $response->getBody()->write(json_encode($respuesta,JSON_NUMERIC_CHECK));
         return $response->withHeader('Content-type', 'application/json;charset=utf-8')
-            ->withStatus($codeStatus);return $respuesta;
+            ->withStatus($codeStatus);
     }
 
     public function resetPassword(Request $request, Response $response,$args){
@@ -591,11 +591,12 @@ class UsuariosController extends BaseController
     /*Actualiza el estado de la conexi*/
     public function updateState($idUser,$db,$state)
     {
-        $sql = "UPDATE Usuarios SET estadoSesion=:state WHERE idUsuario=".$idUser;
+        $sql = "UPDATE Usuarios SET estadoSesion='$state' WHERE idUsuario=".$idUser;
+
         try
         {
             $stament=$db->prepare($sql);
-            $stament->bindParam(":estado",$state);
+
             $stament->execute();
             return true;
         }
@@ -664,4 +665,52 @@ class UsuariosController extends BaseController
 
 
     }
+
+
+    public function stateSession(Request $request, Response $response, $args)
+    {
+        $sql = "SELECT estadoSesion as estado FROM Usuarios WHERE usuario='".$args["usuario"]."'";
+        $respuesta = new ResponseServer();
+        try
+        {
+            $db = $this->conteiner->get("db");
+            $resultado = $db->query($sql);
+
+            if ($resultado->rowCount() > 0)
+            {
+                 $arrayResult = get_object_vars($resultado->fetch());
+                $codeStatus = Constants::CREATE;
+                $respuesta->status=Constants::Ok;
+                $respuesta->message="ok";
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=$arrayResult["estado"];
+                $respuesta->token=null;
+
+            }
+            else
+            {
+                $codeStatus = Constants::CREATE;
+                $respuesta->status=Constants::NO_EXIST;
+                $respuesta->message="No existe";
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=false ;
+                $respuesta->token=null;
+            }
+        }
+        catch(Exception $e)
+        {
+            $codeStatus = Constants::SERVER_ERROR;
+            $respuesta->status=Constants::ERROR;
+            $respuesta->message="error ".$e->getMessage();
+            $respuesta->codeStatus=$codeStatus;
+            $respuesta->statusSession=false;
+            $respuesta->token=null;
+        }
+        $response->getBody()->write(json_encode($respuesta,JSON_NUMERIC_CHECK));
+        return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+            ->withStatus($codeStatus);
+    }
+
+
+
 }
