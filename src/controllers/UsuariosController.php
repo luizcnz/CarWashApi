@@ -112,14 +112,15 @@ class UsuariosController extends BaseController
     //public function updateUser(Request $request, Response $response, $args)
 
     public function  getUser(Request $request, Response $response, $args){
-
-        $sql = "SELECT * FROM Usuarios where usuario=:usuario and contrasena=:contrasena and estadoSesion=1";
+        $args = $request->getParsedBody();
+        $sql = "SELECT usuario,contrasena,estadoSesion FROM Usuarios where usuario=:usuario and contrasena=:contrasena";
         $array=[];
         $codeStatus=0;
         $respuesta=false;
         $respuesta = new ResponseServer();
         try
         {
+
             $db = $this->conteiner->get("db");
             $stament = $db->prepare($sql);
             $stament->bindParam(":usuario",$args["usuario"]);
@@ -129,14 +130,26 @@ class UsuariosController extends BaseController
             if ($stament->rowCount() > 0)
             {
                 $array=get_object_vars($stament->fetch());
-
-                $codeStatus = Constants::CREATE;
-                $respuesta->status=Constants::Ok;
-                $respuesta->message=Constants::Ok;
-                $respuesta->codeStatus=$codeStatus;
-                $respuesta->statusSession=true;
-                $respuesta->token=null;
-                $array["respuesta"] = $respuesta;
+                if($array["estadoSesion"])//valida si el estado esta en false entonces reenvia un mensaje
+                {
+                    $codeStatus = Constants::CREATE;
+                    $respuesta->status=Constants::Ok;
+                    $respuesta->message=Constants::Ok;
+                    $respuesta->codeStatus=$codeStatus;
+                    $respuesta->statusSession=true;
+                    $respuesta->token=null;
+                    $array["respuesta"] = $respuesta;
+                }
+                else
+                {
+                    $codeStatus = Constants::CREATE;
+                    $respuesta->status=Constants::Ok;
+                    $respuesta->message=Constants::SESSION_CLOSED;
+                    $respuesta->codeStatus=$codeStatus;
+                    $respuesta->statusSession=false;
+                    $respuesta->token=null;
+                    $array["respuesta"] = $respuesta;
+                }
 
 
             }
@@ -669,6 +682,7 @@ class UsuariosController extends BaseController
 
     public function stateSession(Request $request, Response $response, $args)
     {
+        $args=$request->getQueryParams();
         $sql = "SELECT estadoSesion as estado FROM Usuarios WHERE usuario='".$args["usuario"]."'";
         $respuesta = new ResponseServer();
         try

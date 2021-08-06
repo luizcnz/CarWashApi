@@ -15,6 +15,7 @@
         const ERROR="error";
         const NO_EXIST="noExist";
         const USER_EXIST="userExist";
+        const SESSION_CLOSED="closed";
         //Generadores
         const GENERADOR_NUMERICO="0123456789";
         const GENERADOR_FULL="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/";
