@@ -6,7 +6,9 @@
  * Date: 26/7/2021
  * Time: 17:19
  */
+
 namespace Api\utils;
+
 use Twilio\Rest\Client;
 use RandomLib\Factory;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -89,16 +91,25 @@ class Authentication
 
 
     public function sendMessage($msg,$to){
-        $sid = getenv("AC9dfa02114209e9e8c4eab3cc9b5c6f0a");
-        $token = getenv("TWILIO_AUTH_TOKEN");
 
-        $twilio = new Client($sid, $token);
+        $account_sid = 'AC9dfa02114209e9e8c4eab3cc9b5c6f0a';
+        $auth_token = '731727d57eda0cbddc554d669750b166';
 
-        $message = $twilio->messages
-            ->create("+15558675310", // to
-                ["body" => "Hi there", "from" => "+15017122661"]
-            );
+        $twilio_number = "+18322415140";
 
+        $client = new Client($account_sid, $auth_token);
+        $result =$client->messages->create(
+        // Where to send a text message (your cell phone?)
+            '+504'.$to,
+            array(
+                'from' => $twilio_number,
+                'body' => $msg
+            )
+        );
+        if($result->errorCode==null)
+            return true;
+        else
+            return false;
     }
 
 
