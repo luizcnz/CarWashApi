@@ -91,6 +91,7 @@ class Authentication
     public function sendMessage($msg,$to){
         $sid = getenv("AC9dfa02114209e9e8c4eab3cc9b5c6f0a");
         $token = getenv("TWILIO_AUTH_TOKEN");
+
         $twilio = new Client($sid, $token);
 
         $message = $twilio->messages
