@@ -93,13 +93,13 @@ class Authentication
     public function sendMessage($msg,$to){
 
         $account_sid = 'AC9dfa02114209e9e8c4eab3cc9b5c6f0a';
-        $auth_token = '731727d57eda0cbddc554d669750b166';
+        $auth_token = '3300d01b3c79ff224a739cf906e2a093';
 
         $twilio_number = "+18322415140";
 
         $client = new Client($account_sid, $auth_token);
-        $result =$client->messages->create(
-        // Where to send a text message (your cell phone?)
+        $result =$client->messages
+            ->create(
             '+504'.$to,
             array(
                 'from' => $twilio_number,
@@ -110,6 +110,9 @@ class Authentication
             return true;
         else
             return false;
+
+
+
     }
 
 
