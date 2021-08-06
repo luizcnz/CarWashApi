@@ -10,5 +10,5 @@
 
 require __DIR__."/carlos.php";
 
-require __DIR__."/dany.php";
+//require __DIR__."/dany.php";
 

@@ -8,6 +8,7 @@
 
 use Slim\Routing\RouteCollectorProxy;
 use API\controllers;
+use Api\Controllers\UsuariosController;
 $app -> group("/v1/vehicle",function (RouteCollectorProxy $group){
     //$group->get("","Api\controllers\VehiclesController:getAllVehicles");
     $group->get("/all/{idUsuario}","Api\controllers\VehiclesController:getAllVehicles");
@@ -42,3 +43,16 @@ $app -> group("/v1/quote",function (RouteCollectorProxy $group){
 // $app -> group("/v1/models",function (RouteCollectorProxy $group){
 //     $group->get("","Api\controllers\ModelsController:getAllModels");
 // });
+$app -> group("/v1/users",function (RouteCollectorProxy $group1){
+
+   //$group1->get("",UsuariosController::class.":getUser")->setName("get-one-user");
+ $group1->get("/status",UsuariosController::class.":stateSession");
+
+    $group1->post("/verify",UsuariosController::class.":verifyNumberPhone");
+    $group1->post("/verify/resend",UsuariosController::class.":resendVerify");
+    $group1->post("/add",UsuariosController::class.":addUser");
+    $group1->post("/login",UsuariosController::class.":sessionStart");
+    $group1->post("/logout",UsuariosController::class.":logout");
+    $group1->put("/resetpass",UsuariosController::class.":resetPassword");
+
+});
