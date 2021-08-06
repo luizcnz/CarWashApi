@@ -215,8 +215,7 @@ class UsuariosController extends BaseController
                 }
                 else if($datos["metodoVerificacion"] =="phoneNumber")
                 {
-                    $wasSended= $auth->sendMessage("",$datos["destinatario"],"69958");
-                    $wasSended=true;
+                    $wasSended= $auth->sendMessage("Su codigo de verificacion es : ".$code,$datos["destinatario"]);
                 }
                 //Se crea la consulta
                 $sql = "INSERT INTO ValidarCuenta (formaVerificacion, codigoVerificacion,token) values (:phoneOMail,:code,:token)
