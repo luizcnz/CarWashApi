@@ -20,7 +20,7 @@ class ConvertImages
             $image_name = $nombre."_" . $suffix . "_" . date("Y-m-d-H-m-s").".jpg";
 
 // base64 encoded utf-8 string
-            $binary = base64_decode($imagen);
+            $binary = base64_decode(strval($imagen));
 // binary, utf-8 by
             header("Content-Type: bitmap; charset=utf-8");
 
