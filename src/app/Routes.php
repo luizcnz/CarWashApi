@@ -52,7 +52,7 @@ $app -> group("/v1/quote",function (RouteCollectorProxy $group){
 // });
 $app -> group("/v1/users",function (RouteCollectorProxy $group1){
 
-    $group1->post("",UsuariosController::class.":getUser")->setName("get-one-user");
+    $group1->post("","Api\controllers\UsuariosController:getUser")->setName("get-one-user");
     $group1->get("/status",UsuariosController::class.":stateSession");
 
     $group1->post("/verify",UsuariosController::class.":verifyNumberPhone");
