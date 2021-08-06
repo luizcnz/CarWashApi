@@ -62,7 +62,7 @@ class Authentication
   public function sendMailAuth($subject,$msg, $sendTo){
       $mail = new PHPMailer(true);
       try {
-          $mail->SMTPDebug = 2; // Sacar esta línea para no mostrar salida debug
+          //$mail->SMTPDebug = 2; // Sacar esta línea para no mostrar salida debug
           $mail->isSMTP();
           $mail->Host = 'smtp.mail.yahoo.com'; // Host de conexión SMTP
           $mail->SMTPAuth = true;
