@@ -264,7 +264,7 @@ class  VehiclesController extends BaseController {
 
     public function  getModel(Request $request, Response $response, $args){
         
-        #$datos = $request->getQueryParams();
+        //$datos = $request->getQueryParams();
 
         $sql = "SELECT 	
         idModeloVehiculos, 
@@ -343,11 +343,11 @@ class  VehiclesController extends BaseController {
 
     public function  getType(Request $request, Response $response, $args){
         
-        #$datos = $request->getQueryParams();
+        //$datos = $request->getQueryParams();
 
         $sql = "SELECT 	
-        TiposVehiculos.idTipoVehiculos, 
-        TiposVehiculos.tipo_vehiculo 
+        idTipoVehiculos, 
+        tipo_vehiculo 
         from TiposVehiculos
         where TiposVehiculos.idTipoVehiculos=".$args["idTipoVehiculos"];
         $array=[];
@@ -362,7 +362,7 @@ class  VehiclesController extends BaseController {
             if ($resultado->rowCount() > 0)
             {
                 $codeStatus=Constants::CREATE;
-                $response->getBody()->write(json_encode($resultado->fetchAll(\PDO::FETCH_CLASS,Types::class),JSON_NUMERIC_CHECK));
+                $response->getBody()->write(json_encode($resultado->fetchAll()));
             }
             else
             {
