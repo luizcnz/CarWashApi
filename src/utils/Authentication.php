@@ -62,16 +62,16 @@ class Authentication
   public function sendMailAuth($subject,$msg, $sendTo){
       $mail = new PHPMailer(true);
       try {
-         // $mail->SMTPDebug = 2; // Sacar esta línea para no mostrar salida debug
+          $mail->SMTPDebug = 2; // Sacar esta línea para no mostrar salida debug
           $mail->isSMTP();
           $mail->Host = 'smtp.mail.yahoo.com'; // Host de conexión SMTP
           $mail->SMTPAuth = true;
-          $mail->Username = 'soporte_ccatracho@yahoo.com'; // Usuario SMTP
-          $mail->Password = 'zbvsvduzkhafmyum'; // Password SMTP
+          $mail->Username = 'carwash.catracho@yahoo.com'; // Usuario SMTP
+          $mail->Password = 'ciavaddlnzczvqlu'; // Password SMTP
           $mail->SMTPSecure = 'tls'; // Activar seguridad TLS
           $mail->Port = 587; // Puerto SMTP
           $mail->CharSet="UTF-8";
-          $mail->setFrom('soporte_ccatracho@yahoo.com'); // Mail del remitente
+          $mail->setFrom('carwash.catracho@yahoo.com'); // Mail del remitente
           $mail->addAddress($sendTo); // Mail del destinatario
 
           $mail->isHTML(true);
@@ -94,7 +94,6 @@ class Authentication
 
         $account_sid = 'AC9dfa02114209e9e8c4eab3cc9b5c6f0a';
         $auth_token = '3300d01b3c79ff224a739cf906e2a093';
-
         $twilio_number = "+18322415140";
 
         $client = new Client($account_sid, $auth_token);
