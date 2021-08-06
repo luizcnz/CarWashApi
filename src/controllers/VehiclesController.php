@@ -66,10 +66,8 @@ class  VehiclesController extends BaseController {
     // }
 
     public function  getAllVehicles(Request $request, Response $response, array $args){
-        
-        
-        //$datos = $request->getQueryParams();
 
+        //$datos = $request->getQueryParams();
         // echo json_encode($datos);
         $sql = "SELECT 
         Vehiculos.idVehiculos,
