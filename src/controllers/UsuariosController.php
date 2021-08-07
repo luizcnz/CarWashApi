@@ -113,7 +113,7 @@ class UsuariosController extends BaseController
 
     public function  getUser(Request $request, Response $response, $args){
         $args = $request->getParsedBody();
-        $sql = "SELECT usuario,contrasena,estadoSesion FROM Usuarios where usuario=:usuario and contrasena=:contrasena";
+        $sql = "SELECT * FROM Usuarios where usuario=:usuario and contrasena=:contrasena";
         $array=[];
         $codeStatus=0;
         $respuesta=false;
