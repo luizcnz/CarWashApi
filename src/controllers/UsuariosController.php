@@ -738,7 +738,7 @@ class UsuariosController extends BaseController
                 try
                 {
 
-                    $sql = "UPDATE Usuarios set contrasena=:newPass, WHERE usuario=:usuario";
+                    $sql = "UPDATE Usuarios set contrasena=:newPass,resetContrasena=null WHERE usuario=:usuario";
                     $stament = $db->prepare($sql);
                     $stament->bindParam(":usuario", $datos["usuario"]);
                     $stament->bindParam(":newPass", $datos["contrasenaNueva"]);
