@@ -38,6 +38,7 @@ $app -> group("/v1/price",function (RouteCollectorProxy $group){
 $app -> group("/v1/quote",function (RouteCollectorProxy $group){
     $group->post("/add","Api\controllers\QuotesController:addQuote");
     $group->get("/oil","Api\controllers\QuotesController:getOil");
+    $group->get("/all/{idUsuario}","Api\controllers\QuotesController:getAllQuotes");
     //$group->get("/usuario={idusuario}&tipovehiculo={idtipovehiculo}","Api\controllers\PricesController:getPricesByUserAndVehicle");
 
 });

@@ -91,8 +91,10 @@ class  VehiclesController extends BaseController {
 
         try
         {
+            
             $db = $this->conteiner->get("db");
             $resultado = $db->query($sql);
+            
 
             if ($resultado->rowCount() > 0)
             {
