@@ -19,6 +19,10 @@
         const NO_MATCH="noMatch";
         //Generadores
         const GENERADOR_NUMERICO="0123456789";
-        const GENERADOR_FULL="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/";
+        const GENERADOR_FULL="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const IMG_USER_DEFAULT="user_default.jpg";
+        const IMG_CAR_DEFAULT="car_default.jpg";
+        const IMG_UPLOAD_NAME="imageToUpload";
+
 	}
 ?>

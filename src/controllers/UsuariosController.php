@@ -8,12 +8,14 @@
 
 namespace Api\controllers;
 use Api\utils\Authentication;
-use Api\utils\ConvertImages;
+use Api\utils\Images;
 use Api\utils\ResponseServer;
+use Api\utils\UploadFile;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use PHPMailer\PHPMailer\Exception;
 use Api\utils\status\Constants;
+
 class UsuariosController extends BaseController
 {
 
@@ -46,7 +48,7 @@ class UsuariosController extends BaseController
                 $urlFoto=Constants::URL_BASE."/img/user/default.jpg";
              else
              {
-                 $converter = new ConvertImages();
+                 $converter = new Images();
                  $urlFoto = $converter->convertImage($datos["foto"],$datos["usuario"],"user");
                  $urlFoto=Constants::URL_BASE."/img/user/".$urlFoto;
              }
@@ -107,10 +109,69 @@ class UsuariosController extends BaseController
         $response->getBody()->write(json_encode($respuesta,JSON_NUMERIC_CHECK));
            return $response->withHeader('Content-type', 'application/json;charset=utf-8')
                 ->withStatus($codeStatus);
+
     }
+    public function updateUser(Request $request, Response $response, $args)
+    {
+        $datos=$request->getParsedBody();//Obtengo los parametros
+        $respuesta= new ResponseServer();//Crea respuesta del servidor
+        $upload= new UploadFile();
 
-    //public function updateUser(Request $request, Response $response, $args)
+        $directory = __DIR__."/../img"; //Directorio de imagenes de usuario
+        $uploadedFiles = $request->getUploadedFiles();//Obtiene los archivos
+        //Se sube el archivo y devuelve una url.
 
+
+        $sql = "UPDATE Usuarios SET nombre=:nombre,correo=:correo,telefono='".$datos["telefono"]."',urlFoto=:urlFoto
+               WHERE usuario=:usuario and contrasena='".$datos["contrasena"]."'";
+
+            try
+            {
+                $url =$upload->UploadOneFile($uploadedFiles,$directory,Constants::IMG_USER_DEFAULT);
+
+                $db = $this->conteiner->get("db");
+                $stament = $db->prepare($sql);
+                $stament->bindParam(":nombre", $datos["nombre"]);
+                $stament->bindParam(":correo", $datos["correo"]);
+                $stament->bindParam(":usuario", $datos["usuario"] );
+                $stament->bindParam(":urlFoto", $url );
+
+                $res = $stament->execute();
+
+                if ($res)
+                {
+                    $codeStatus = Constants::CREATE;
+                    $respuesta->status=Constants::Ok;
+                    $respuesta->message="Usuario creado con exito.";
+                    $respuesta->codeStatus=$codeStatus;
+                    $respuesta->statusSession=true;
+                }
+
+                else
+                {
+                    $codeStatus = Constants::SERVER_ERROR;
+                    $respuesta->status=Constants::ERROR;
+                    $respuesta->message ="No se ha podido registrar ";
+                    $respuesta->codeStatus=$codeStatus;
+                    $respuesta->statusSession=false;
+                }
+
+
+            }
+            catch(\PDOException $e)
+            {
+                $codeStatus = Constants::SERVER_ERROR;
+                $respuesta->status=Constants::ERROR;
+                $respuesta->message= "Error al actualizar datos".$e->getMessage();
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=false;
+            }
+
+
+        $response->getBody()->write(json_encode($respuesta,JSON_NUMERIC_CHECK));
+        return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+               ->withStatus($codeStatus);
+    }
     public function  getUser(Request $request, Response $response, $args){
         $args = $request->getParsedBody();
         $sql = "SELECT idUsuario,nombre,apellido,direccion,correo,telefono,usuario,contrasena,urlFoto,estadoSesion  FROM Usuarios  where usuario=:usuario and contrasena=:contrasena";
@@ -600,7 +661,7 @@ class UsuariosController extends BaseController
     }
 
 
-    /*Actualiza el estado de la conexi*/
+    /*Actualiza el estado de la conexion*/
     public function updateState($idUser,$db,$state)
     {
         $sql = "UPDATE Usuarios SET estadoSesion='$state' WHERE idUsuario=".$idUser;
@@ -608,7 +669,6 @@ class UsuariosController extends BaseController
         try
         {
             $stament=$db->prepare($sql);
-
             $stament->execute();
             return true;
         }
@@ -647,21 +707,21 @@ class UsuariosController extends BaseController
     }
 
     public function  getImage(Request $request, Response $response,array $args)
-    {
+        {
 
-        $datos= $datos = $request->getQueryParams();
+            $datos= $datos = $request->getQueryParams();
 
-         if ($datos["root"]=="user")
-         {
-             $file = __DIR__ . "/../src/img/user/" . $datos["name"];
-             if (file_exists($file)) {
-                 return $response->withHeader("Location", "/src/img/user" . $datos["name"])
-                     ->withStatus(302);
+            if ($datos["root"]=="user")
+            {
+                $file = __DIR__ . "/../src/img/user/" . $datos["name"];
+                if (file_exists($file)) {
+                    return $response->withHeader("Location", "/src/img/user" . $datos["name"])
+                        ->withStatus(302);
 
-             } else
-                 return $response->withHeader("Location", "/src/img/user/default.jgp")
-                     ->withStatus(302);
-         }
+                } else
+                    return $response->withHeader("Location", "/src/img/user/default.jgp")
+                        ->withStatus(302);
+            }
 
          else
          {
@@ -812,5 +872,7 @@ class UsuariosController extends BaseController
             return "no";
         }
     }
+
+
 
 }
