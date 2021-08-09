@@ -181,8 +181,6 @@ class  QuotesController extends BaseController
 
             $array_response['respuesta'] = $respuesta;
 
-            //array_push($array_data, $respuesta);
-
             
             $response->getBody()->write(json_encode($array_response,JSON_NUMERIC_CHECK));
             return $response->withHeader('Content-type', 'application/json;charset=utf-8')
@@ -289,6 +287,8 @@ class  QuotesController extends BaseController
                     $respuesta->codeStatus=$codeStatus;
                     $respuesta->statusSession=true;
                     $respuesta->token=null;
+                    $array_data = $json_response;
+                    
 
                 }
                 else
@@ -313,9 +313,13 @@ class  QuotesController extends BaseController
             }
              
 
-            array_push($json_response, $respuesta);
+            $array_response['historial'] = $array_data;
 
-            $response->getBody()->write(json_encode($json_response,JSON_NUMERIC_CHECK));
+            $array_response['respuesta'] = $respuesta;
+
+            //array_push($json_response, $respuesta);
+
+            $response->getBody()->write(json_encode($array_response,JSON_NUMERIC_CHECK));
             return $response->withHeader('Content-type', 'application/json;charset=utf-8')
                 ->withStatus($codeStatus);
 
