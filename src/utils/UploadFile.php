@@ -28,9 +28,9 @@ class UploadFile
     {
         $url=$defaultImage;
         $type=$defaultImage==Constants::IMG_USER_DEFAULT?"user":"car";//Valida donde va guardar
-        $directory=__DIR__."/../../".$directory."/".$type;
-
-        $uploadedFile = $uploadedFiles[Constants::IMG_UPLOAD_NAME];
+        $directory= $_SERVER['DOCUMENT_ROOT']."/".$directory."/".$type;
+             echo $directory;
+         $uploadedFile = $uploadedFiles[Constants::IMG_UPLOAD_NAME];
         if ($this->isFileUploaded($uploadedFile))
         {
             $filename = $this->moveUploadedFile($directory, $uploadedFile);
