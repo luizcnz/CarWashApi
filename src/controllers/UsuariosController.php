@@ -113,7 +113,7 @@ class UsuariosController extends BaseController
 
     public function  getUser(Request $request, Response $response, $args){
         $args = $request->getParsedBody();
-        $sql = "SELECT * FROM Usuarios where usuario=:usuario and contrasena=:contrasena";
+        $sql = "SELECT idUsuario,nombre,apellido,direccion,correo,telefono,usuario,contrasena,urlFoto,estadoSesion  FROM Usuarios  where usuario=:usuario and contrasena=:contrasena";
         $array=[];
         $codeStatus=0;
         $respuesta=false;
@@ -548,7 +548,7 @@ class UsuariosController extends BaseController
                 {
                     //Si se envio el correo se procede a guardar la nueva contraseña autogenerada
                     // $auth->sendMessage("Su codigo de verificación es: ".$code,"+50495079139");
-                    $sql = "UPDATE Usuarios set contrasena=:newPass WHERE usuario=:usuario";
+                    $sql = "UPDATE Usuarios set resetContrasena=:newPass WHERE usuario=:usuario";
                     $stament = $db->prepare($sql);
                     $stament->bindParam(":usuario", $datos["usuario"]);
                     $stament->bindParam(":newPass", $newPass);
@@ -724,6 +724,93 @@ class UsuariosController extends BaseController
             ->withStatus($codeStatus);
     }
 
+    public function changePassword(Request $request, Response $response, $args)
+    {
+        $datos = $request->getParsedBody();
+        $respuesta = new ResponseServer();
+        $db = $this->conteiner->get("db");
+        $res=$this->getOldPassword($datos["usuario"],$datos["tipo"],$db);
 
+        if($res!="no")//valida si exsite la contraseña del usuario
+        {
+            if($res["contrasena"] == $datos["contrasenaVieja"])
+            {
+                try
+                {
+
+                    $sql = "UPDATE Usuarios set contrasena=:newPass,resetContrasena=null WHERE usuario=:usuario";
+                    $stament = $db->prepare($sql);
+                    $stament->bindParam(":usuario", $datos["usuario"]);
+                    $stament->bindParam(":newPass", $datos["contrasenaNueva"]);
+                    $stament->execute();
+
+                    $codeStatus = Constants::CREATE;
+                    $respuesta->status=Constants::Ok;
+                    $respuesta->message= "Actualizado correctamente";
+                    $respuesta->codeStatus=$codeStatus;
+                    $respuesta->statusSession=true;
+                    $respuesta->token=null;
+
+                }
+
+                catch(\PDOException $e)
+                {
+                    $codeStatus = Constants::SERVER_ERROR;
+                    $respuesta->status=Constants::FAIL_AUTH;
+                    $respuesta->message= "Error, no se pudo actualizar la contraseña ".$e->getMessage();
+                    $respuesta->codeStatus=$codeStatus;
+                    $respuesta->statusSession=false;
+                    $respuesta->token=null;
+                }
+
+            }
+            else
+            {
+                $codeStatus = Constants::CREATE;
+                $respuesta->status=Constants::NO_MATCH;
+                $respuesta->message="Las contraseñas no coinciden";
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=false;
+            }
+
+
+        }
+        else
+        {
+            $codeStatus = Constants::CREATE;
+            $respuesta->status=Constants::NO_EXIST;
+            $respuesta->message="Usuario/contraseña no existen";
+            $respuesta->codeStatus=$codeStatus;
+            $respuesta->statusSession=false;
+        }
+
+
+        $response->getBody()->write(json_encode($respuesta,JSON_NUMERIC_CHECK));
+        return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+            ->withStatus($codeStatus);
+
+    }
+
+
+    public function getOldPassword($user,$tipo,$db)
+    {
+        if($tipo =="reset")
+        $sql = "SELECT resetContrasena as contrasena From Usuarios where usuario='$user'";
+        else
+            $sql = "SELECT contrasena From Usuarios where usuario='$user'";
+
+        $stament = $db->prepare($sql);
+        $stament->execute();
+        if($stament->rowCount()>0)
+        {
+            $respuesta = get_object_vars($stament->fetch());
+
+            return $respuesta;
+        }
+        else
+        {
+            return "no";
+        }
+    }
 
 }

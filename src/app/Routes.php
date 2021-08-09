@@ -63,5 +63,6 @@ $app -> group("/v1/users",function (RouteCollectorProxy $group1){
     $group1->post("/login","Api\controllers\UsuariosController:sessionStart");
     $group1->post("/logout","Api\controllers\UsuariosController:logout");
     $group1->put("/resetpass","Api\controllers\UsuariosController:resetPassword");
+    $group1->put("/changepass","Api\controllers\UsuariosController:changePassword");
 
 });
