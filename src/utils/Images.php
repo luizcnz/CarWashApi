@@ -63,33 +63,27 @@ class Images
 
         $datos= $args;
 
-        if ($datos["root"]=="user")
-        {
-            $file = "/src/img/user/".$datos["name"];
-
-
-            if (file_exists($file))
-            {
-
-                return $response->withHeader("Location",  "/src/img/user/" . $datos["name"])
-                    ->withStatus(Constants::REDIRECT_FOUND);
-
-            } else
-
-                return $response->withHeader("Location", "/src/img/user/".Constants::IMG_USER_DEFAULT)
-                    ->withStatus(Constants::REDIRECT_FOUND);
-        }
-
-        else
-        {
-            $file = __DIR__ . "/../img/auto/" . $datos["name"];
+        if ($datos["root"]=="user") {
+            $file = __DIR__ . "/../../public/img/user/" . $datos["name"];
             echo $file;
             if (file_exists($file)) {
-                return $response->withHeader("Location", "/src/img/auto" . $datos["name"])
+                return $response->withHeader("Location", Constants::DOMAIN."/img/user/". $datos["name"])
                     ->withStatus(Constants::REDIRECT_FOUND);
 
             } else
-                return $response->withHeader("Location", "/src/img/auto/".Constants::IMG_CAR_DEFAULT)
+                return $response->withHeader("Location", Constants::DOMAIN."/img/user/".Constants::IMG_USER_DEFAULT)
+                    ->withStatus(Constants::REDIRECT_FOUND);
+        }
+        else
+        {
+            $file = __DIR__ . "/../../public/img/auto/" . $datos["name"];
+            echo $file;
+            if (file_exists($file)) {
+                return $response->withHeader("Location", Constants::DOMAIN."/img/auto/". $datos["name"])
+                    ->withStatus(Constants::REDIRECT_FOUND);
+
+            } else
+                return $response->withHeader("Location", Constants::DOMAIN."/img/auto/".Constants::IMG_CAR_DEFAULT)
                     ->withStatus(Constants::REDIRECT_FOUND);
         }
 

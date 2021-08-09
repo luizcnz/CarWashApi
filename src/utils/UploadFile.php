@@ -28,13 +28,23 @@ class UploadFile
     {
         $url=$defaultImage;
         $type=$defaultImage==Constants::IMG_USER_DEFAULT?"user":"car";//Valida donde va guardar
-        $directory=$directory."/".$type;
+        $directory=__DIR__."/../../".$directory."/".$type;
+
         $uploadedFile = $uploadedFiles[Constants::IMG_UPLOAD_NAME];
-        if ($uploadedFile->getError() === UPLOAD_ERR_OK)
+        if ($this->isFileUploaded($uploadedFile))
         {
             $filename = $this->moveUploadedFile($directory, $uploadedFile);
+            chmod($directory."/".$filename,0777);
             $url= Constants::URL_BASE."/media/".$type."/".$filename;
         }
         return $url;
+    }
+
+    public function  isFileUploaded($uploadedFile)
+    {
+        if($uploadedFile->getError() === UPLOAD_ERR_OK)
+            return true;
+        else
+            return false;
     }
 }

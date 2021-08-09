@@ -42,17 +42,12 @@ class UsuariosController extends BaseController
          if($auth)
          {
               $estado=true;
+             //Se obtienen los archivos y en caso de haber asignado una foto la sube
+             //de lo contrarios asigna una por defecto
+             $uploadedFiles = $request->getUploadedFiles();//Obtiene los archivo
+             $upload= new UploadFile();
 
-              /*Se realiza la conversion de la foto de arreglo de byte a jpg*/
-             if($datos["foto"]==""||$datos["foto"]==null)
-                $urlFoto=Constants::URL_BASE."/img/user/default.jpg";
-             else
-             {
-                 $converter = new Images();
-                 $urlFoto = $converter->convertImage($datos["foto"],$datos["usuario"],"user");
-                 $urlFoto=Constants::URL_BASE."/img/user/".$urlFoto;
-             }
-
+             $urlFoto = $upload->UploadOneFile($uploadedFiles, Constants::DIR_IMG, Constants::IMG_USER_DEFAULT);
              try
              {
                  // $auth->sendMessage("Su codigo de verificación es: ".$code,"+50495079139");
@@ -115,34 +110,33 @@ class UsuariosController extends BaseController
     {
         $datos=$request->getParsedBody();//Obtengo los parametros
         $respuesta= new ResponseServer();//Crea respuesta del servidor
+        $db = $this->conteiner->get("db");
+        $uploadedFiles = $request->getUploadedFiles();//Obtiene los archivo
+
         $upload= new UploadFile();
-
-        $directory = __DIR__."/../img"; //Directorio de imagenes de usuario
-        $uploadedFiles = $request->getUploadedFiles();//Obtiene los archivos
-        //Se sube el archivo y devuelve una url.
-
-
-        $sql = "UPDATE Usuarios SET nombre=:nombre,correo=:correo,telefono='".$datos["telefono"]."',urlFoto=:urlFoto
-               WHERE usuario=:usuario and contrasena='".$datos["contrasena"]."'";
-
+        if($this->existUser($datos["usuario"],$datos["contrasena"],$db)) //Valida si existe un usuario
+        {
+            if($upload->isFileUploaded( $uploadedFiles[Constants::IMG_UPLOAD_NAME]))//valida si se cambio footo
+            {
+                $url = $upload->UploadOneFile($uploadedFiles, Constants::DIR_IMG, Constants::IMG_USER_DEFAULT);
+                $sql = "UPDATE Usuarios SET nombre=:nombre,correo=:correo,telefono='" . $datos["telefono"]."',urlFoto='$url'
+                        WHERE usuario='" . $datos["usuario"] . "' and contrasena='" . $datos["contrasena"] . "'";
+            }
+           else
+               $sql = "UPDATE Usuarios SET nombre=:nombre,correo=:correo,telefono='" . $datos["telefono"] . "'
+                         WHERE usuario='" . $datos["usuario"] . "' and contrasena='" . $datos["contrasena"] . "'";
             try
             {
-                $url =$upload->UploadOneFile($uploadedFiles,$directory,Constants::IMG_USER_DEFAULT);
-
-                $db = $this->conteiner->get("db");
                 $stament = $db->prepare($sql);
                 $stament->bindParam(":nombre", $datos["nombre"]);
                 $stament->bindParam(":correo", $datos["correo"]);
-                $stament->bindParam(":usuario", $datos["usuario"] );
-                $stament->bindParam(":urlFoto", $url );
+                $stament->execute();
 
-                $res = $stament->execute();
-
-                if ($res)
+                if ($stament->rowCount()>0)
                 {
                     $codeStatus = Constants::CREATE;
                     $respuesta->status=Constants::Ok;
-                    $respuesta->message="Usuario creado con exito.";
+                    $respuesta->message="Actualizado con exito.";
                     $respuesta->codeStatus=$codeStatus;
                     $respuesta->statusSession=true;
                 }
@@ -151,7 +145,7 @@ class UsuariosController extends BaseController
                 {
                     $codeStatus = Constants::SERVER_ERROR;
                     $respuesta->status=Constants::ERROR;
-                    $respuesta->message ="No se ha podido registrar ";
+                    $respuesta->message ="No se pudo actualizar";
                     $respuesta->codeStatus=$codeStatus;
                     $respuesta->statusSession=false;
                 }
@@ -166,6 +160,18 @@ class UsuariosController extends BaseController
                 $respuesta->codeStatus=$codeStatus;
                 $respuesta->statusSession=false;
             }
+
+        }
+        else
+        {
+            $codeStatus = Constants::CREATE;
+            $respuesta->status=Constants::NO_EXIST;
+            $respuesta->message= "Usuario no registrado";
+            $respuesta->codeStatus=$codeStatus;
+            $respuesta->statusSession=false;
+            $respuesta->token=null;
+        }
+
 
 
         $response->getBody()->write(json_encode($respuesta,JSON_NUMERIC_CHECK));
@@ -261,7 +267,7 @@ class UsuariosController extends BaseController
         $codeStatus=0;
        // se genera el codigo de verifiacion
         //Valid si existe usuarios registrados
-        $existeUsuario=$this->existUser($datos["destinatario"],$this->conteiner->get("db"));
+        $existeUsuario=$this->isUserRegistered($datos["destinatario"],$this->conteiner->get("db"));
 
         if(!$existeUsuario) {
             $auth=new Authentication();
@@ -384,7 +390,7 @@ class UsuariosController extends BaseController
 
         $codeStatus=0;
         //Valid si existe usuarios registrados
-        $existeUsuario=$this->existUser($datos["destinatario"],$this->conteiner->get("db"));
+        $existeUsuario=$this->isUserRegistered($datos["destinatario"],$this->conteiner->get("db"));
         if(!$existeUsuario)
         {
             $auth=new Authentication();
@@ -681,7 +687,7 @@ class UsuariosController extends BaseController
     }
 /*Valida si existe un usuario registrado
 */
-    private function existUser($destinatario,$db)
+    private function isUserRegistered($destinatario, $db)
     {
         $sql = "SELECT * FROM Usuarios WHERE telefono='".$destinatario."' OR correo='".$destinatario."'";
         $respuesta=false;
@@ -705,7 +711,30 @@ class UsuariosController extends BaseController
         }
         return $respuesta;
     }
+    private function existUser($user,$pasword,$db)
+    {
+        $sql = "SELECT * FROM Usuarios WHERE usuario='".$user."' and contrasena='".$pasword."'";
+        $respuesta=false;
+        try
+        {
+            $db = $this->conteiner->get("db");
+            $resultado = $db->query($sql);
 
+            if ($resultado->rowCount() > 0)
+            {
+                $respuesta = true;
+            }
+            else
+            {
+                $respuesta=false;
+            }
+        }
+        catch(Exception $e)
+        {
+            $respuesta=false;
+        }
+        return $respuesta;
+    }
     public function  getImage(Request $request, Response $response,array $args)
         {
 
