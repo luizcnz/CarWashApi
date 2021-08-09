@@ -69,7 +69,6 @@ $app -> group("/v1/users",function (RouteCollectorProxy $group1){
 
 });
 
-$app->get("/v1/media/{root}/{name}","Api\utils\Images:getImage");
 
 
 

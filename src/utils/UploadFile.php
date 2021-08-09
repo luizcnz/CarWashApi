@@ -34,8 +34,7 @@ class UploadFile
         if ($this->isFileUploaded($uploadedFile))
         {
             $filename = $this->moveUploadedFile($directory, $uploadedFile);
-            chmod($directory."/".$filename,0777);
-            $url= Constants::URL_BASE."/media/".$type."/".$filename;
+            $url= Constants::DOMAIN."/img/".$type."/".$filename;
         }
         return $url;
     }
