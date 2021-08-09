@@ -29,7 +29,7 @@
         const IMG_CAR_DEFAULT="car_default.jpg";
         const IMG_UPLOAD_NAME="imageToUpload";
 
-        const DIR_IMG="public/img";
+        const DIR_IMG="/img";
 
 	}
 ?>
