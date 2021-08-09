@@ -16,6 +16,7 @@ use Api\models\vehicles\Brands;
 use Api\models\vehicles\Gas;
 use Api\models\vehicles\Types;
 use Api\utils\status\Constants;
+use Api\utils\ResponseServer;
 
 class  VehiclesController extends BaseController {
 
@@ -69,6 +70,7 @@ class  VehiclesController extends BaseController {
 
         //$datos = $request->getQueryParams();
         // echo json_encode($datos);
+        $respuesta = new ResponseServer();
         $sql = "SELECT 
         Vehiculos.idVehiculos,
         Vehiculos.numeroPlaca,
@@ -91,33 +93,57 @@ class  VehiclesController extends BaseController {
 
         try
         {
+            
             $db = $this->conteiner->get("db");
             $resultado = $db->query($sql);
+            
 
             if ($resultado->rowCount() > 0)
             {
-                $codeStatus=Constants::CREATE;
-                $response->getBody()->write(json_encode($resultado->fetchAll(\PDO::FETCH_CLASS,Vehicles::class),JSON_NUMERIC_CHECK));
+                $codeStatus = Constants::CREATE;
+                $respuesta->status=Constants::Ok;
+                $respuesta->message ="Consulta realizada con exito";
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
+                $array_data = $resultado->fetchAll(\PDO::FETCH_CLASS,Vehicles::class);
+                
             }
             else
             {
-                $codeStatus=Constants::NO_CONTENT;
-                array_push($array,["msg" =>"No hay registros en la base de datos"]);
+                $codeStatus=Constants::CREATE;
+                $respuesta->status=Constants::NO_EXIST;
+                $respuesta->message ="No hay registros en la base de datos";
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
                 //json_encode("po existen registros en la BBDD.");
             }
         }
         catch(Exception $e)
         {
-            array_push($array,["error" => $e->getMessage()]);
             $codeStatus=Constants::SERVER_ERROR;
+                $respuesta->status=Constants::ERROR;
+                $respuesta->message ="Error" .$e->getMessage();
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
         }
-         return $response->withHeader('Content-type', 'application/json;charset=utf-8')
 
-                        ->withStatus($codeStatus);
+
+        $array_response['vehiculos'] = $array_data;
+
+        $array_response['respuesta'] = $respuesta;
+
+        
+        $response->getBody()->write(json_encode($array_response,JSON_NUMERIC_CHECK));
+        return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+            ->withStatus($codeStatus);
     }
 
     public function  getOneVehicle(Request $request, Response $response, $args){
         
+        $respuesta = new ResponseServer();
         $datos = $request->getQueryParams();
 
         $sql = "SELECT 
@@ -148,28 +174,47 @@ class  VehiclesController extends BaseController {
 
             if ($resultado->rowCount() > 0)
             {
-                $codeStatus=Constants::CREATE;
-                $response->getBody()->write(json_encode($resultado->fetchAll(\PDO::FETCH_CLASS,Vehicles::class),JSON_NUMERIC_CHECK));
+                $codeStatus = Constants::CREATE;
+                $respuesta->status=Constants::Ok;
+                $respuesta->message ="Consulta realizada con exito";
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
+                $array_data = $resultado->fetchAll(\PDO::FETCH_CLASS,Vehicles::class);
             }
             else
             {
-                $codeStatus=Constants::NO_CONTENT;
-                array_push($array,["msg" =>"No hay registros en la base de datos"]);
+                $codeStatus=Constants::CREATE;
+                $respuesta->status=Constants::NO_EXIST;
+                $respuesta->message ="No hay registros en la base de datos";
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
                 //json_encode("po existen registros en la BBDD.");
             }
         }
         catch(Exception $e)
         {
-            array_push($array,["error" => $e->getMessage()]);
             $codeStatus=Constants::SERVER_ERROR;
+                $respuesta->status=Constants::ERROR;
+                $respuesta->message ="Error" .$e->getMessage();
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
         }
-         return $response->withHeader('Content-type', 'application/json;charset=utf-8')
 
-                        ->withStatus($codeStatus);
+        $array_response['vehiculo'] = $array_data;
+
+        $array_response['respuesta'] = $respuesta;
+
+        $response->getBody()->write(json_encode($array_response,JSON_NUMERIC_CHECK));
+        return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+            ->withStatus($codeStatus);
     }
 
     public function  addVehicle(Request $request, Response $response){
         
+        $respuesta = new ResponseServer();
         $datos = $request->getParsedBody();
         //$imgRoute=$this->url.$convert->convertImage($valor["foto"]);//obtenemos el ruta de la imagen
         //$convert = new Images();
@@ -179,7 +224,7 @@ class  VehiclesController extends BaseController {
 
         $sql = "INSERT INTO  Vehiculos(numeroPlaca, anio, fotoRuta, observacion, idMarcaVehiculos, idUsuario, idModeloVehiculos, idTipoCombustible) 
                 VALUES (:numeroPlaca, :anio, :fotoRuta, :observacion, :idMarcaVehiculos, :idUsuario, :idModeloVehiculos, :idTipoCombustible)";
-         $respuesta=[];
+         
 
          $codeStatus=0;
          try
@@ -199,33 +244,41 @@ class  VehiclesController extends BaseController {
             if($res){
 
                 $codeStatus=Constants::CREATE;
-                $respuesta=["status" => "ok","msg"=>"Guardado con exito"];
+                $respuesta->status=Constants::Ok;
+                $respuesta->message ="Guardado con exito";
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
             }
             
 
         }
         catch(\PDOException $e)
         {
-            $respuesta=["status" =>"error", "msg"=>$e->getMessage()];
             $codeStatus=Constants::SERVER_ERROR;
+            $respuesta->status=Constants::ERROR;
+            $respuesta->message ="Error" .$e->getMessage();
+            $respuesta->codeStatus=$codeStatus;
+            $respuesta->statusSession=true;
+            $respuesta->token=null;
         }
-        return $response->withHeader('Content-type', 'application/json;charset=utf-8')
-            ->withJson($respuesta)
-                        ->withStatus($codeStatus);
+        $response->getBody()->write(json_encode($respuesta,JSON_NUMERIC_CHECK));
+            return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+                ->withStatus($codeStatus);
     }
 
 
     public  function  updateVehicle(Request $request, Response $response, array $arg)
     {
         //$reqPost = json_decode($request->getParsedBody(),true);
-
+        $respuesta = new ResponseServer();
         $datos = $request->getParsedBody();
 
         $imgRoute= "imagen.jpg";
 
         $sql = "UPDATE Vehiculos SET numeroPlaca=:numeroPlaca, anio=:anio, fotoRuta=:fotoRuta, observacion=:observacion, idMarcaVehiculos=:idMarcaVehiculos, idModeloVehiculos=:idModeloVehiculos, idTipoCombustible=:idTipoCombustible
-                WHERE idVehiculo=".$datos["idVehiculo"];
-         $respuesta=[];
+                WHERE idVehiculos=".$datos["idVehiculos"];
+         
          $codeStatus=0;
         try
         {
@@ -238,32 +291,38 @@ class  VehiclesController extends BaseController {
             $stament->bindParam(":idMarcaVehiculos",$datos["idMarcaVehiculos"]);
             $stament->bindParam(":idModeloVehiculos",$datos["idModeloVehiculos"]);
             $stament->bindParam(":idTipoCombustible",$datos["idTipoCombustible"]);
+            $res = $stament->execute();
 
-            if($stament->rowCount() > 0)
-            {
+            if($res){
+
                 $codeStatus=Constants::CREATE;
-                $respuesta=["status" => "ok","msg"=>"Registro Actualizado"];
+                $respuesta->status=Constants::Ok;
+                $respuesta->message ="Modificacion Exitosa";
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
             }
-            else
-            {
-                $codeStatus=Constants::NO_CONTENT;
-                $respuesta=["msg"=>"No se econtro registro para este id"];
-            }
+           
 
         }
         catch(\PDOException $e)
         {
-            $respuesta=["status" =>"error", "msg"=>$e->getMessage()];
             $codeStatus=Constants::SERVER_ERROR;
+            $respuesta->status=Constants::ERROR;
+            $respuesta->message ="Error" .$e->getMessage();
+            $respuesta->codeStatus=$codeStatus;
+            $respuesta->statusSession=true;
+            $respuesta->token=null;
         }
-        return $response->withHeader('Content-type', 'application/json')
-            ->withJson($respuesta)
-            ->withStatus($codeStatus);
+        $response->getBody()->write(json_encode($respuesta,JSON_NUMERIC_CHECK));
+            return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+                ->withStatus($codeStatus);
 
     }
 
     public function  getModel(Request $request, Response $response, $args){
         
+        $respuesta = new ResponseServer();
         //$datos = $request->getQueryParams();
 
         $sql = "SELECT 	
@@ -282,30 +341,48 @@ class  VehiclesController extends BaseController {
 
             if ($resultado->rowCount() > 0)
             {
-                $codeStatus=Constants::CREATE;
-                $response->getBody()->write(json_encode($resultado->fetchAll(\PDO::FETCH_CLASS,Models::class),JSON_NUMERIC_CHECK));
+                
+                $codeStatus = Constants::CREATE;
+                $respuesta->status=Constants::Ok;
+                $respuesta->message ="Consulta realizada con exito";
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
+                $array_data = $resultado->fetchAll(\PDO::FETCH_CLASS,Models::class);
             }
             else
             {
-                $codeStatus=Constants::NO_CONTENT;
-                array_push($array,["msg" =>"No hay registros en la base de datos"]);
+                $codeStatus=Constants::CREATE;
+                $respuesta->status=Constants::NO_EXIST;
+                $respuesta->message ="No hay registros en la base de datos";
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
                 //json_encode("po existen registros en la BBDD.");
             }
         }
         catch(Exception $e)
         {
-            array_push($array,["error" => $e->getMessage()]);
             $codeStatus=Constants::SERVER_ERROR;
+                $respuesta->status=Constants::ERROR;
+                $respuesta->message ="Error" .$e->getMessage();
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
         }
-         return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+        $array_response['modelo_vehiculo'] = $array_data;
 
-                        ->withStatus($codeStatus);
+        $array_response['respuesta'] = $respuesta;
+
+        $response->getBody()->write(json_encode($array_response,JSON_NUMERIC_CHECK));
+        return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+            ->withStatus($codeStatus);
     }
 
     public function  getBrand(Request $request, Response $response, $args){
         
         #$datos = $request->getQueryParams();
-
+        $respuesta = new ResponseServer();
         $sql = "SELECT 	
         idMarcaVehiculos, 
         marca 
@@ -321,28 +398,45 @@ class  VehiclesController extends BaseController {
 
             if ($resultado->rowCount() > 0)
             {
-                $codeStatus=Constants::CREATE;
-                $response->getBody()->write(json_encode($resultado->fetchAll(\PDO::FETCH_CLASS,Brands::class),JSON_NUMERIC_CHECK));
+                $codeStatus = Constants::CREATE;
+                $respuesta->status=Constants::Ok;
+                $respuesta->message ="Consulta realizada con exito";
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
+                $array_data = $resultado->fetchAll(\PDO::FETCH_CLASS,Brands::class);
             }
             else
             {
-                $codeStatus=Constants::NO_CONTENT;
-                array_push($array,["msg" =>"No hay registros en la base de datos"]);
+                $codeStatus=Constants::CREATE;
+                $respuesta->status=Constants::NO_EXIST;
+                $respuesta->message ="No hay registros en la base de datos";
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
                 //json_encode("po existen registros en la BBDD.");
             }
         }
         catch(Exception $e)
         {
-            array_push($array,["error" => $e->getMessage()]);
             $codeStatus=Constants::SERVER_ERROR;
+                $respuesta->status=Constants::ERROR;
+                $respuesta->message ="Error" .$e->getMessage();
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
         }
-         return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+        $array_response['marca_vehiculo'] = $array_data;
 
-                        ->withStatus($codeStatus);
+        $array_response['respuesta'] = $respuesta;
+
+        $response->getBody()->write(json_encode($array_response,JSON_NUMERIC_CHECK));
+        return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+            ->withStatus($codeStatus);
     }
 
     public function  getType(Request $request, Response $response, $args){
-        
+        $respuesta = new ResponseServer();
         //$datos = $request->getQueryParams();
 
         $sql = "SELECT 	
@@ -361,28 +455,45 @@ class  VehiclesController extends BaseController {
 
             if ($resultado->rowCount() > 0)
             {
-                $codeStatus=Constants::CREATE;
-                $response->getBody()->write(json_encode($resultado->fetchAll()));
+                $codeStatus = Constants::CREATE;
+                $respuesta->status=Constants::Ok;
+                $respuesta->message ="Consulta realizada con exito";
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
+                $array_data = $resultado->fetchAll();
             }
             else
             {
-                $codeStatus=Constants::NO_CONTENT;
-                array_push($array,["msg" =>"No hay registros en la base de datos"]);
+                $codeStatus=Constants::CREATE;
+                $respuesta->status=Constants::NO_EXIST;
+                $respuesta->message ="No hay registros en la base de datos";
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
                 //json_encode("po existen registros en la BBDD.");
             }
         }
         catch(Exception $e)
         {
-            array_push($array,["error" => $e->getMessage()]);
             $codeStatus=Constants::SERVER_ERROR;
+                $respuesta->status=Constants::ERROR;
+                $respuesta->message ="Error" .$e->getMessage();
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
         }
-         return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+        $array_response['tipo_vehiculo'] = $array_data;
 
-                        ->withStatus($codeStatus);
+        $array_response['respuesta'] = $respuesta;
+
+        $response->getBody()->write(json_encode($array_response,JSON_NUMERIC_CHECK));
+        return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+            ->withStatus($codeStatus);
     }
 
     public function  getGas(Request $request, Response $response, $args){
-        
+        $respuesta = new ResponseServer();
         #$datos = $request->getQueryParams();
 
         $sql = "SELECT 	
@@ -400,24 +511,41 @@ class  VehiclesController extends BaseController {
 
             if ($resultado->rowCount() > 0)
             {
-                $codeStatus=Constants::CREATE;
-                $response->getBody()->write(json_encode($resultado->fetchAll(\PDO::FETCH_CLASS,Gas::class),JSON_NUMERIC_CHECK));
+                $codeStatus = Constants::CREATE;
+                $respuesta->status=Constants::Ok;
+                $respuesta->message ="Consulta realizada con exito";
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
+                $array_data = $resultado->fetchAll(\PDO::FETCH_CLASS,Gas::class);
             }
             else
             {
-                $codeStatus=Constants::NO_CONTENT;
-                array_push($array,["msg" =>"No hay registros en la base de datos"]);
+                $codeStatus=Constants::CREATE;
+                $respuesta->status=Constants::NO_EXIST;
+                $respuesta->message ="No hay registros en la base de datos";
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
                 //json_encode("po existen registros en la BBDD.");
             }
         }
         catch(Exception $e)
         {
-            array_push($array,["error" => $e->getMessage()]);
             $codeStatus=Constants::SERVER_ERROR;
+                $respuesta->status=Constants::ERROR;
+                $respuesta->message ="Error" .$e->getMessage();
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=true;
+                $respuesta->token=null;
         }
-         return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+        $array_response['combustible'] = $array_data;
 
-                        ->withStatus($codeStatus);
+        $array_response['respuesta'] = $respuesta;
+
+        $response->getBody()->write(json_encode($array_response,JSON_NUMERIC_CHECK));
+        return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+            ->withStatus($codeStatus);
     }
 
 //        $valores= $this->conteiner->get("db_settings");
