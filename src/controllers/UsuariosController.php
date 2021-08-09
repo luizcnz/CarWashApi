@@ -23,8 +23,8 @@ class UsuariosController extends BaseController
     {
         $datos = $request->getParsedBody();
 
-        $sql = "INSERT INTO Usuarios (`nombre`, `apellido`, `direccion`, `correo`, `telefono`, `usuario`, `contrasena`,urlFoto,estadoSesion) VALUES 
-                (:nombre,:apellido, :direccion,:mail,:telefono,:usuario,:pass,:urlFoto,:estado)";
+        $sql = "INSERT INTO Usuarios (`nombre`, `apellido`, `direccion`, `correo`, `telefono`, `usuario`, `contrasena`,urlFoto,estadoSesion,playerId) VALUES 
+                (:nombre,:apellido, :direccion,:mail,:telefono,:usuario,:pass,:urlFoto,:estado,:playerId)";
 
         $respuesta = new ResponseServer();
         $codeStatus=0;
@@ -62,6 +62,7 @@ class UsuariosController extends BaseController
                  $stament->bindParam(":pass", $datos["contrasena"] );
                  $stament->bindParam(":urlFoto", $urlFoto );
                  $stament->bindParam(":estado", $estado );
+                 $stament->bindParam(":playerId", $datos["playerId"] );
                  $res = $stament->execute();
 
                  if ($res)
@@ -735,37 +736,9 @@ class UsuariosController extends BaseController
         }
         return $respuesta;
     }
-    public function  getImage(Request $request, Response $response,array $args)
-        {
-
-            $datos= $datos = $request->getQueryParams();
-
-            if ($datos["root"]=="user")
-            {
-                $file = __DIR__ . "/../src/img/user/" . $datos["name"];
-                if (file_exists($file)) {
-                    return $response->withHeader("Location", "/src/img/user" . $datos["name"])
-                        ->withStatus(302);
-
-                } else
-                    return $response->withHeader("Location", "/src/img/user/default.jgp")
-                        ->withStatus(302);
-            }
-
-         else
-         {
-             $file = __DIR__ . "/../src/img/auto/" . $datos["name"];
-             if (file_exists($file)) {
-                 return $response->withHeader("Location", "/src/img/auto" . $datos["name"])
-                     ->withStatus(302);
-
-             } else
-                 return $response->withHeader("Location", "/src/img/auto/default.jgp")
-                     ->withStatus(302);
-         }
 
 
-    }
+
 
 
     public function stateSession(Request $request, Response $response, $args)
