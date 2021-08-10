@@ -69,7 +69,7 @@ class UsuariosController extends BaseController
                  {
                      $codeStatus = Constants::CREATE;
                      $respuesta->status=Constants::Ok;
-                     $respuesta->message="Usuario creado con exito.";
+                     $respuesta->message=$urlFoto;
                      $respuesta->codeStatus=$codeStatus;
                      $respuesta->statusSession=true;
                  }
