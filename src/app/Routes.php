@@ -29,7 +29,7 @@ $app -> group("/v1/vehicle",function (RouteCollectorProxy $group){
 });
 
 $app -> group("/v1/price",function (RouteCollectorProxy $group){
-    $group->get("/all/{idTipoVehiculos}","Api\controllers\PricesController:getAllPrices");
+    $group->get("/all","Api\controllers\PricesController:getAllPrices");
     $group->get("/one","Api\controllers\PricesController:getOnePrice");
     //$group->get("/usuario={idusuario}&tipovehiculo={idtipovehiculo}","Api\controllers\PricesController:getPricesByUserAndVehicle");
 
