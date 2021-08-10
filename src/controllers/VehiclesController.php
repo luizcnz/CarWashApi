@@ -17,54 +17,10 @@ use Api\models\vehicles\Gas;
 use Api\models\vehicles\Types;
 use Api\utils\status\Constants;
 use Api\utils\ResponseServer;
+use Api\utils\Images;
+use Api\utils\UploadFile;
 
 class  VehiclesController extends BaseController {
-
-    // public function  getAllVehicles(Request $request, Response $response, $args){
-    //     $sql = "SELECT 
-    //     Vehiculos.idVehiculos,
-    //     Vehiculos.numeroPlaca,
-    //     Vehiculos.anio,
-    //     Vehiculos.fotoRuta,
-    //     Vehiculos.observacion,
-    //     MarcasVehiculos.marca,
-    //     ModelosVehiculos.modelo,
-    //     Combustible.tipoCombustible
-    //     from Vehiculos 
-    //     INNER JOIN MarcasVehiculos
-    //     on Vehiculos.idMarcaVehiculos = MarcasVehiculos.idMarcaVehiculos
-    //     INNER JOIN ModelosVehiculos
-    //     on Vehiculos.idModeloVehiculos = ModelosVehiculos.idModeloVehiculos
-    //     INNER JOIN Combustible
-    //     on Vehiculos.idTipoCombustible = Combustible.idTipoCombustible";
-    //     $array=[];
-
-    //     $codeStatus=0;
-    //     try
-    //     {
-    //         $db = $this->conteiner->get("db");
-    //         $resultado = $db->query($sql);
-
-    //         if ($resultado->rowCount() > 0)
-    //         {
-    //             $codeStatus=CodeStatus::CREATE;
-    //             array_push($array, $resultado->fetchAll(\PDO::FETCH_CLASS,Vehicles::class));
-    //         }
-    //         else
-    //         {
-    //             $codeStatus=CodeStatus::NO_CONTENT;
-    //             array_push($array,["msg" =>"No hay registros en la base de datos"]);
-    //             //json_encode("po existen registros en la BBDD.");
-    //         }
-    //     }
-    //     catch(Exception $e)
-    //     {
-    //         array_push($array,["error" => $e->getMessage()]);
-    //     }
-    //      return $response->withHeader('Content-type', 'application/json;charset=utf-8')
-    //         ->withJson($array)
-    //                     ->withStatus($codeStatus);
-    // }
 
     public function  getAllVehicles(Request $request, Response $response, array $args){
 
@@ -216,15 +172,15 @@ class  VehiclesController extends BaseController {
         
         $respuesta = new ResponseServer();
         $datos = $request->getParsedBody();
-        //$imgRoute=$this->url.$convert->convertImage($valor["foto"]);//obtenemos el ruta de la imagen
-        //$convert = new Images();
-        $imgRoute= "imagen.jpg";//$this->url.$convert->convertImage($valor["foto"]);
-
-        
 
         $sql = "INSERT INTO  Vehiculos(numeroPlaca, anio, fotoRuta, observacion, idMarcaVehiculos, idUsuario, idModeloVehiculos, idTipoCombustible) 
                 VALUES (:numeroPlaca, :anio, :fotoRuta, :observacion, :idMarcaVehiculos, :idUsuario, :idModeloVehiculos, :idTipoCombustible)";
          
+
+         $uploadedFiles = $request->getUploadedFiles();//Obtiene los archivo
+         $upload= new UploadFile();
+
+         $urlFoto = $upload->UploadOneFile($uploadedFiles, Constants::DIR_IMG, Constants::IMG_CAR_DEFAULT);
 
          $codeStatus=0;
          try
@@ -233,7 +189,7 @@ class  VehiclesController extends BaseController {
             $stament=$db->prepare($sql);
             $stament->bindParam(":numeroPlaca",$datos["numeroPlaca"]);
             $stament->bindParam(":anio",$datos["anio"]);
-            $stament->bindParam(":fotoRuta",$imgRoute);
+            $stament->bindParam(":fotoRuta",$urlFoto);
             $stament->bindParam(":observacion",$datos["observacion"]);
             $stament->bindParam(":idMarcaVehiculos",$datos["idMarcaVehiculos"]);
             $stament->bindParam(":idUsuario",$datos["idUsuario"]);
@@ -267,26 +223,40 @@ class  VehiclesController extends BaseController {
                 ->withStatus($codeStatus);
     }
 
-
     public  function  updateVehicle(Request $request, Response $response, array $arg)
     {
         //$reqPost = json_decode($request->getParsedBody(),true);
-        $respuesta = new ResponseServer();
         $datos = $request->getParsedBody();
+        $respuesta = new ResponseServer();        
+        $db = $this->conteiner->get("db");
+        $uploadedFiles = $request->getUploadedFiles();//Obtiene los archivo
+        $codeStatus=0;
 
-        $imgRoute= "imagen.jpg";
+        $upload= new UploadFile();
+        
+        if($upload->isFileUploaded( $uploadedFiles[Constants::IMG_UPLOAD_NAME]))//valida si se cambio footo
+        {
+            $url = $upload->UploadOneFile($uploadedFiles, Constants::DIR_IMG, Constants::IMG_CAR_DEFAULT);
+            $sql = "UPDATE Vehiculos SET numeroPlaca=:numeroPlaca, anio=:anio, observacion=:observacion, fotoRuta='$url',
+            idMarcaVehiculos=:idMarcaVehiculos, idModeloVehiculos=:idModeloVehiculos, 
+            idTipoCombustible=:idTipoCombustible
+            WHERE idVehiculos=".$datos["idVehiculos"];
+        }
+        else
+        {
+            $sql = "UPDATE Vehiculos SET numeroPlaca=:numeroPlaca, anio=:anio, observacion=:observacion,
+            idMarcaVehiculos=:idMarcaVehiculos, idModeloVehiculos=:idModeloVehiculos, 
+            idTipoCombustible=:idTipoCombustible
+            WHERE idVehiculos=".$datos["idVehiculos"];
+        }
+        
 
-        $sql = "UPDATE Vehiculos SET numeroPlaca=:numeroPlaca, anio=:anio, fotoRuta=:fotoRuta, observacion=:observacion, idMarcaVehiculos=:idMarcaVehiculos, idModeloVehiculos=:idModeloVehiculos, idTipoCombustible=:idTipoCombustible
-                WHERE idVehiculos=".$datos["idVehiculos"];
-         
-         $codeStatus=0;
         try
         {
-            $db = $this->conteiner->get("db");
+            
             $stament=$db->prepare($sql);
             $stament->bindParam(":numeroPlaca",$datos["numeroPlaca"]);
             $stament->bindParam(":anio",$datos["anio"]);
-            $stament->bindParam(":fotoRuta",$imgRoute);
             $stament->bindParam(":observacion",$datos["observacion"]);
             $stament->bindParam(":idMarcaVehiculos",$datos["idMarcaVehiculos"]);
             $stament->bindParam(":idModeloVehiculos",$datos["idModeloVehiculos"]);
@@ -548,10 +518,49 @@ class  VehiclesController extends BaseController {
             ->withStatus($codeStatus);
     }
 
-//        $valores= $this->conteiner->get("db_settings");
-//     echo var_dump($valores);
-//    $response->getBody()->write("Hola");
-//    return $response;
-//}
+// public function  getAllVehicles(Request $request, Response $response, $args){
+    //     $sql = "SELECT 
+    //     Vehiculos.idVehiculos,
+    //     Vehiculos.numeroPlaca,
+    //     Vehiculos.anio,
+    //     Vehiculos.fotoRuta,
+    //     Vehiculos.observacion,
+    //     MarcasVehiculos.marca,
+    //     ModelosVehiculos.modelo,
+    //     Combustible.tipoCombustible
+    //     from Vehiculos 
+    //     INNER JOIN MarcasVehiculos
+    //     on Vehiculos.idMarcaVehiculos = MarcasVehiculos.idMarcaVehiculos
+    //     INNER JOIN ModelosVehiculos
+    //     on Vehiculos.idModeloVehiculos = ModelosVehiculos.idModeloVehiculos
+    //     INNER JOIN Combustible
+    //     on Vehiculos.idTipoCombustible = Combustible.idTipoCombustible";
+    //     $array=[];
 
+    //     $codeStatus=0;
+    //     try
+    //     {
+    //         $db = $this->conteiner->get("db");
+    //         $resultado = $db->query($sql);
+
+    //         if ($resultado->rowCount() > 0)
+    //         {
+    //             $codeStatus=CodeStatus::CREATE;
+    //             array_push($array, $resultado->fetchAll(\PDO::FETCH_CLASS,Vehicles::class));
+    //         }
+    //         else
+    //         {
+    //             $codeStatus=CodeStatus::NO_CONTENT;
+    //             array_push($array,["msg" =>"No hay registros en la base de datos"]);
+    //             //json_encode("po existen registros en la BBDD.");
+    //         }
+    //     }
+    //     catch(Exception $e)
+    //     {
+    //         array_push($array,["error" => $e->getMessage()]);
+    //     }
+    //      return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+    //         ->withJson($array)
+    //                     ->withStatus($codeStatus);
+    // }
 }

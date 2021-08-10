@@ -25,7 +25,7 @@ $app -> group("/v1/vehicle",function (RouteCollectorProxy $group){
     $group->get("/type/{idTipoVehiculos}","Api\controllers\VehiclesController:getType");
     $group->get("/gas","Api\controllers\VehiclesController:getGas");
     $group->post("/add","Api\controllers\VehiclesController:addVehicle");
-    $group->put("/update","Api\controllers\VehiclesController:updateVehicle");
+    $group->post("/update","Api\controllers\VehiclesController:updateVehicle");
 });
 
 $app -> group("/v1/price",function (RouteCollectorProxy $group){
