@@ -57,6 +57,8 @@ $app -> group("/v1/users",function (RouteCollectorProxy $group1){
     $group1->post("","Api\controllers\UsuariosController:getUser");
     $group1->get("/status","Api\controllers\UsuariosController:stateSession");
 
+    $group1->post("/update","Api\controllers\UsuariosController:updateUser");
+
     $group1->post("/verify","Api\controllers\UsuariosController:verifyNumberPhone");
     $group1->post("/verify/resend","Api\controllers\UsuariosController:resendVerify");
     $group1->post("/add","Api\controllers\UsuariosController:addUser");
@@ -66,3 +68,7 @@ $app -> group("/v1/users",function (RouteCollectorProxy $group1){
     $group1->put("/changepass","Api\controllers\UsuariosController:changePassword");
 
 });
+
+
+
+

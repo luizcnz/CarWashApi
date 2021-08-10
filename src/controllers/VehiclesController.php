@@ -217,7 +217,7 @@ class  VehiclesController extends BaseController {
         $respuesta = new ResponseServer();
         $datos = $request->getParsedBody();
         //$imgRoute=$this->url.$convert->convertImage($valor["foto"]);//obtenemos el ruta de la imagen
-        //$convert = new ConvertImages();
+        //$convert = new Images();
         $imgRoute= "imagen.jpg";//$this->url.$convert->convertImage($valor["foto"]);
 
         

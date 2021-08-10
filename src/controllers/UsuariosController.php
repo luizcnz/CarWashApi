@@ -8,12 +8,14 @@
 
 namespace Api\controllers;
 use Api\utils\Authentication;
-use Api\utils\ConvertImages;
+use Api\utils\Images;
 use Api\utils\ResponseServer;
+use Api\utils\UploadFile;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use PHPMailer\PHPMailer\Exception;
 use Api\utils\status\Constants;
+
 class UsuariosController extends BaseController
 {
 
@@ -21,8 +23,8 @@ class UsuariosController extends BaseController
     {
         $datos = $request->getParsedBody();
 
-        $sql = "INSERT INTO Usuarios (`nombre`, `apellido`, `direccion`, `correo`, `telefono`, `usuario`, `contrasena`,urlFoto,estadoSesion) VALUES 
-                (:nombre,:apellido, :direccion,:mail,:telefono,:usuario,:pass,:urlFoto,:estado)";
+        $sql = "INSERT INTO Usuarios (`nombre`, `apellido`, `direccion`, `correo`, `telefono`, `usuario`, `contrasena`,urlFoto,estadoSesion,playerId) VALUES 
+                (:nombre,:apellido, :direccion,:mail,:telefono,:usuario,:pass,:urlFoto,:estado,:playerId)";
 
         $respuesta = new ResponseServer();
         $codeStatus=0;
@@ -40,17 +42,12 @@ class UsuariosController extends BaseController
          if($auth)
          {
               $estado=true;
+             //Se obtienen los archivos y en caso de haber asignado una foto la sube
+             //de lo contrarios asigna una por defecto
+             $uploadedFiles = $request->getUploadedFiles();//Obtiene los archivo
+             $upload= new UploadFile();
 
-              /*Se realiza la conversion de la foto de arreglo de byte a jpg*/
-             if($datos["foto"]==""||$datos["foto"]==null)
-                $urlFoto=Constants::URL_BASE."/img/user/default.jpg";
-             else
-             {
-                 $converter = new ConvertImages();
-                 $urlFoto = $converter->convertImage($datos["foto"],$datos["usuario"],"user");
-                 $urlFoto=Constants::URL_BASE."/img/user/".$urlFoto;
-             }
-
+             $urlFoto = $upload->UploadOneFile($uploadedFiles, Constants::DIR_IMG, Constants::IMG_USER_DEFAULT);
              try
              {
                  // $auth->sendMessage("Su codigo de verificación es: ".$code,"+50495079139");
@@ -65,6 +62,7 @@ class UsuariosController extends BaseController
                  $stament->bindParam(":pass", $datos["contrasena"] );
                  $stament->bindParam(":urlFoto", $urlFoto );
                  $stament->bindParam(":estado", $estado );
+                 $stament->bindParam(":playerId", $datos["playerId"] );
                  $res = $stament->execute();
 
                  if ($res)
@@ -107,10 +105,80 @@ class UsuariosController extends BaseController
         $response->getBody()->write(json_encode($respuesta,JSON_NUMERIC_CHECK));
            return $response->withHeader('Content-type', 'application/json;charset=utf-8')
                 ->withStatus($codeStatus);
+
     }
+    public function updateUser(Request $request, Response $response, $args)
+    {
+        $datos=$request->getParsedBody();//Obtengo los parametros
+        $respuesta= new ResponseServer();//Crea respuesta del servidor
+        $db = $this->conteiner->get("db");
+        $uploadedFiles = $request->getUploadedFiles();//Obtiene los archivo
 
-    //public function updateUser(Request $request, Response $response, $args)
+        $upload= new UploadFile();
+        if($this->existUser($datos["usuario"],$datos["contrasena"],$db)) //Valida si existe un usuario
+        {
+            if($upload->isFileUploaded( $uploadedFiles[Constants::IMG_UPLOAD_NAME]))//valida si se cambio footo
+            {
+                $url = $upload->UploadOneFile($uploadedFiles, Constants::DIR_IMG, Constants::IMG_USER_DEFAULT);
+                $sql = "UPDATE Usuarios SET nombre=:nombre,correo=:correo,telefono='" . $datos["telefono"]."',urlFoto='$url'
+                        WHERE usuario='" . $datos["usuario"] . "' and contrasena='" . $datos["contrasena"] . "'";
+            }
+           else
+               $sql = "UPDATE Usuarios SET nombre=:nombre,correo=:correo,telefono='" . $datos["telefono"] . "'
+                         WHERE usuario='" . $datos["usuario"] . "' and contrasena='" . $datos["contrasena"] . "'";
+            try
+            {
+                $stament = $db->prepare($sql);
+                $stament->bindParam(":nombre", $datos["nombre"]);
+                $stament->bindParam(":correo", $datos["correo"]);
+                $stament->execute();
 
+                if ($stament->rowCount()>0)
+                {
+                    $codeStatus = Constants::CREATE;
+                    $respuesta->status=Constants::Ok;
+                    $respuesta->message="Actualizado con exito.";
+                    $respuesta->codeStatus=$codeStatus;
+                    $respuesta->statusSession=true;
+                }
+
+                else
+                {
+                    $codeStatus = Constants::SERVER_ERROR;
+                    $respuesta->status=Constants::ERROR;
+                    $respuesta->message ="No se pudo actualizar";
+                    $respuesta->codeStatus=$codeStatus;
+                    $respuesta->statusSession=false;
+                }
+
+
+            }
+            catch(\PDOException $e)
+            {
+                $codeStatus = Constants::SERVER_ERROR;
+                $respuesta->status=Constants::ERROR;
+                $respuesta->message= "Error al actualizar datos".$e->getMessage();
+                $respuesta->codeStatus=$codeStatus;
+                $respuesta->statusSession=false;
+            }
+
+        }
+        else
+        {
+            $codeStatus = Constants::CREATE;
+            $respuesta->status=Constants::NO_EXIST;
+            $respuesta->message= "Usuario no registrado";
+            $respuesta->codeStatus=$codeStatus;
+            $respuesta->statusSession=false;
+            $respuesta->token=null;
+        }
+
+
+
+        $response->getBody()->write(json_encode($respuesta,JSON_NUMERIC_CHECK));
+        return $response->withHeader('Content-type', 'application/json;charset=utf-8')
+               ->withStatus($codeStatus);
+    }
     public function  getUser(Request $request, Response $response, $args){
         $args = $request->getParsedBody();
         $sql = "SELECT idUsuario,nombre,apellido,direccion,correo,telefono,usuario,contrasena,urlFoto,estadoSesion  FROM Usuarios  where usuario=:usuario and contrasena=:contrasena";
@@ -200,7 +268,7 @@ class UsuariosController extends BaseController
         $codeStatus=0;
        // se genera el codigo de verifiacion
         //Valid si existe usuarios registrados
-        $existeUsuario=$this->existUser($datos["destinatario"],$this->conteiner->get("db"));
+        $existeUsuario=$this->isUserRegistered($datos["destinatario"],$this->conteiner->get("db"));
 
         if(!$existeUsuario) {
             $auth=new Authentication();
@@ -323,7 +391,7 @@ class UsuariosController extends BaseController
 
         $codeStatus=0;
         //Valid si existe usuarios registrados
-        $existeUsuario=$this->existUser($datos["destinatario"],$this->conteiner->get("db"));
+        $existeUsuario=$this->isUserRegistered($datos["destinatario"],$this->conteiner->get("db"));
         if(!$existeUsuario)
         {
             $auth=new Authentication();
@@ -600,7 +668,7 @@ class UsuariosController extends BaseController
     }
 
 
-    /*Actualiza el estado de la conexi*/
+    /*Actualiza el estado de la conexion*/
     public function updateState($idUser,$db,$state)
     {
         $sql = "UPDATE Usuarios SET estadoSesion='$state' WHERE idUsuario=".$idUser;
@@ -608,7 +676,6 @@ class UsuariosController extends BaseController
         try
         {
             $stament=$db->prepare($sql);
-
             $stament->execute();
             return true;
         }
@@ -621,7 +688,7 @@ class UsuariosController extends BaseController
     }
 /*Valida si existe un usuario registrado
 */
-    private function existUser($destinatario,$db)
+    private function isUserRegistered($destinatario, $db)
     {
         $sql = "SELECT * FROM Usuarios WHERE telefono='".$destinatario."' OR correo='".$destinatario."'";
         $respuesta=false;
@@ -645,38 +712,33 @@ class UsuariosController extends BaseController
         }
         return $respuesta;
     }
-
-    public function  getImage(Request $request, Response $response,array $args)
+    private function existUser($user,$pasword,$db)
     {
+        $sql = "SELECT * FROM Usuarios WHERE usuario='".$user."' and contrasena='".$pasword."'";
+        $respuesta=false;
+        try
+        {
+            $db = $this->conteiner->get("db");
+            $resultado = $db->query($sql);
 
-        $datos= $datos = $request->getQueryParams();
-
-         if ($datos["root"]=="user")
-         {
-             $file = __DIR__ . "/../src/img/user/" . $datos["name"];
-             if (file_exists($file)) {
-                 return $response->withHeader("Location", "/src/img/user" . $datos["name"])
-                     ->withStatus(302);
-
-             } else
-                 return $response->withHeader("Location", "/src/img/user/default.jgp")
-                     ->withStatus(302);
-         }
-
-         else
-         {
-             $file = __DIR__ . "/../src/img/auto/" . $datos["name"];
-             if (file_exists($file)) {
-                 return $response->withHeader("Location", "/src/img/auto" . $datos["name"])
-                     ->withStatus(302);
-
-             } else
-                 return $response->withHeader("Location", "/src/img/auto/default.jgp")
-                     ->withStatus(302);
-         }
-
-
+            if ($resultado->rowCount() > 0)
+            {
+                $respuesta = true;
+            }
+            else
+            {
+                $respuesta=false;
+            }
+        }
+        catch(Exception $e)
+        {
+            $respuesta=false;
+        }
+        return $respuesta;
     }
+
+
+
 
 
     public function stateSession(Request $request, Response $response, $args)
@@ -812,5 +874,7 @@ class UsuariosController extends BaseController
             return "no";
         }
     }
+
+
 
 }
