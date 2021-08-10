@@ -14,7 +14,9 @@
 		Cotizaciones.longitud,
 		Cotizaciones.latitud,
 		CONCAT(Usuarios.nombre, ' ', Usuarios.apellido) as Usuario,
-		CONCAT(MarcasVehiculos.marca, ' ', ModelosVehiculos.modelo) as Vehiculo
+		CONCAT(MarcasVehiculos.marca, ' ', ModelosVehiculos.modelo) as Vehiculo,
+		ModelosVehiculos.idTipoVehiculos as tipo_vehiculo,
+		Cotizaciones.domicilio
 		from Cotizaciones
 		INNER JOIN Vehiculos
 		on Cotizaciones.idVehiculos = Vehiculos.idVehiculos
@@ -28,6 +30,19 @@
 
 		$datos=[];
 		$datos = $resultado->fetch_array(MYSQLI_ASSOC);
+
+		echo $datos['tipo_vehiculo'];
+
+		if($datos['domicilio']==0)
+		{
+			$tipo="En Establecimiento";
+			$extra=0;
+		}
+		else
+		{
+			$tipo="A Domicilio";
+			$extra=0.15;
+		}
 
 		//echo $IdCotizacion;
 		
@@ -62,7 +77,7 @@
 	<meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1"/>
 	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 	
-	<title>Prueba en el posteo de vehiculos</title>
+	<title>Detalles de la Cotizacion</title>
 	<!-- set your website meta description and keywords -->
 	
 	<!-- Bootstrap Stylesheets -->
@@ -123,6 +138,11 @@
 													</div>
 
 													<div class="form-group col-sm-6">
+														<label ><font color="white">Tipo de Servicio</font></label>
+														<label class="form-control"><?php echo $tipo;?></label>
+													</div>
+
+													<div class="form-group col-sm-6">
 														<label ><font color="white">SubTotal</font></label>
 														<label class="form-control"><?php echo $datos['subtotal'];?></label>
 													</div>
@@ -133,10 +153,15 @@
 													</div>
 
 													<div class="form-group col-sm-6">
+														<label ><font color="white">Descuento</font></label>
+														<label class="form-control"><?php echo $datos['descuento'];?></label>
+													</div>
+													
+													<div class="form-group col-sm-6">
 														<label ><font color="white">Total</font></label>
 														<label class="form-control"><?php echo $datos['total'];?></label>
 													</div>
-													
+
 													<br>
 													<div class="form-group col-sm-6">
 														<label ><font color="white">Latitud</font></label>
@@ -160,52 +185,68 @@
 														<input type="submit" name="accion" value="rechazar" id="accion" class="btn btn-custom"></input>
 													</div>
 													<center>
-														<TABLE >
-															<tr>
-																<td`>
-																	<font size ="4"color="#ffffff">
-																		<table >
-																			<thead>	
-																				<tr> 
-																					<font size ="4"color="#ffffff">  
-																						<th>Id</th>
-																						<th>Id de Cotizacion</th>
-																						<th>Servicio</th>
-																					</font>
-																				</tr>
-																			</thead>
-																		<tbody>
-																			<?php 
-																				
-																				$resultado = $db->query("
-																				SELECT 
-																				DetallesCotizacion.idDetalleCotizacion,
-																				DetallesCotizacion.idCotizaciones, 
-																				Servicios.nombre_servicio
-																				FROM DetallesCotizacion 
-																				INNER JOIN Servicios
-																				on DetallesCotizacion.idServicios = Servicios.idServicios
-																				WHERE DetallesCotizacion.idCotizaciones=".$datos['idCotizaciones']);
+														<table>
+															<thead>	
+																<tr> 
+																	<th>Id</th>
+																	<th>Id de Cotizacion</th>
+																	<th>Servicio</th>
+																	<th>Precio</th>
+																</tr>
+															</thead>
+														<tbody>
+															<?php 
+																$total = 0;
+																$resultado = $db->query("
+																	SELECT 
+																DetallesCotizacion.idDetalleCotizacion,
+																DetallesCotizacion.idCotizaciones, 
+																Servicios.nombre_servicio,
+																Precios.precio
+																FROM DetallesCotizacion 
+																INNER JOIN Servicios
+																on DetallesCotizacion.idServicios = Servicios.idServicios
+																INNER JOIN Precios
+																on Servicios.idServicios = Precios.idServicios
+																INNER JOIN TiposVehiculos
+																on Precios.idTipoVehiculos = TiposVehiculos.idTipoVehiculos
+																WHERE DetallesCotizacion.idCotizaciones = ".$datos['idCotizaciones']." and TiposVehiculos.idTipoVehiculos = ".$datos['tipo_vehiculo']);
+																
 
-																				$fila = $resultado->fetch_array(MYSQLI_ASSOC); 
-																				while ($fila != null)
-																				{ 
-																					echo "
-																						<tr>
-																							<td>".$fila['idDetalleCotizacion']."</td>
-																							<td>".$fila['idCotizaciones']."</td>
-																							<td>".$fila['nombre_servicio']."</td>
-																						</tr>";
-																						$fila = $resultado->fetch_array(MYSQLI_ASSOC);
-																					}
-																					$resultado->free(); 
-																				?>
-																			</tbody>
-																		</table>
-																	</font>
-																</td>
-															</tr>
-														</TABLE>
+																$fila = $resultado->fetch_array(MYSQLI_ASSOC); 
+																while ($fila != null)
+																{ 
+																	$total = $total+$fila['precio'];
+																	echo "
+																		<tr>
+																			<td>".$fila['idDetalleCotizacion']."</td>
+																			<td>".$fila['idCotizaciones']."</td>
+																			<td>".$fila['nombre_servicio']."</td>
+																			<td>".$fila['precio']."</td>
+																		</tr>";
+																		$fila = $resultado->fetch_array(MYSQLI_ASSOC);
+																}
+																$resultado->free(); 
+																echo "
+																<tr>
+																	<td></td>
+																	<td></td>
+																	<td>Extra por Serv. a domicilio: </td>
+																	<td>".$total*$extra."</td>
+																</tr>";
+
+																$total = $total+($total*$extra);
+																echo "
+																<tr>
+																	<td></td>
+																	<td></td>
+																	<td>Total a Pagar: </td>
+																	<td>".$total."</td>
+																</tr>";
+
+																?>
+															</tbody>
+														</table>
 													</center>
 												<br>
 											</div><!-- end row -->
