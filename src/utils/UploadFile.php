@@ -29,12 +29,18 @@ class UploadFile
         $url=$defaultImage;
         $type=$defaultImage==Constants::IMG_USER_DEFAULT?"user":"auto";//Valida donde va guardar
         $directory= $_SERVER['DOCUMENT_ROOT'].$directory."/".$type;
-         $uploadedFile = $uploadedFiles[Constants::IMG_UPLOAD_NAME];
-        if ($this->isFileUploaded($uploadedFile))
+        /*Valida que si se este subiendo una imagen*/
+        if(isset($uploadedFiles[Constants::IMG_UPLOAD_NAME]))
         {
-            $filename = $this->moveUploadedFile($directory, $uploadedFile);
-            $url= Constants::DOMAIN."/img/".$type."/".$filename;
+            $uploadedFile = $uploadedFiles[Constants::IMG_UPLOAD_NAME];
+            //Valida si se sube la imagen o el archivo
+            if ($this->isFileUploaded($uploadedFile))
+            {
+                $filename = $this->moveUploadedFile($directory, $uploadedFile);
+                $url= Constants::DOMAIN."/img/".$type."/".$filename;
+            }
         }
+
         return $url;
     }
 
