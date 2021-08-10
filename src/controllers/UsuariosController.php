@@ -113,7 +113,7 @@ class UsuariosController extends BaseController
         $respuesta= new ResponseServer();//Crea respuesta del servidor
         $db = $this->conteiner->get("db");
         $uploadedFiles = $request->getUploadedFiles();//Obtiene los archivo
-
+        $msg="";
         $upload= new UploadFile();
         if($this->existUser($datos["usuario"],$datos["contrasena"],$db)) //Valida si existe un usuario
         {
@@ -122,11 +122,15 @@ class UsuariosController extends BaseController
                 $url = $upload->UploadOneFile($uploadedFiles, Constants::DIR_IMG, Constants::IMG_USER_DEFAULT);
                 $sql = "UPDATE Usuarios SET nombre=:nombre,correo=:correo,telefono='" . $datos["telefono"]."',urlFoto='$url'
                         WHERE usuario='" . $datos["usuario"] . "' and contrasena='" . $datos["contrasena"] . "'";
+                $msg=$url;
             }
            else
+           {
                $sql = "UPDATE Usuarios SET nombre=:nombre,correo=:correo,telefono='" . $datos["telefono"] . "'
                          WHERE usuario='" . $datos["usuario"] . "' and contrasena='" . $datos["contrasena"] . "'";
-            try
+                $msg=$datos["urlFoto"];
+           }
+               try
             {
                 $stament = $db->prepare($sql);
                 $stament->bindParam(":nombre", $datos["nombre"]);
@@ -137,7 +141,7 @@ class UsuariosController extends BaseController
                 {
                     $codeStatus = Constants::CREATE;
                     $respuesta->status=Constants::Ok;
-                    $respuesta->message="Actualizado con exito.";
+                    $respuesta->message=$msg;
                     $respuesta->codeStatus=$codeStatus;
                     $respuesta->statusSession=true;
                 }
