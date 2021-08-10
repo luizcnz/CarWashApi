@@ -19,8 +19,8 @@ class  QuotesController extends BaseController
             $datos = $request->getParsedBody();
             $servicios=$datos["servicios"];
 
-            $sql = "INSERT INTO  Cotizaciones(fecha_hora, estado, longitud, latitud, idEmpleado, idVehiculos ) 
-            VALUES (:fecha_hora, :estado, :longitud, :latitud, :idEmpleado, :idVehiculos)";
+            $sql = "INSERT INTO  Cotizaciones(fecha_hora, estado, longitud, latitud, idEmpleado, idVehiculos, domicilio ) 
+            VALUES (:fecha_hora, :estado, :longitud, :latitud, :idEmpleado, :idVehiculos, :domicilio)";
 
             // $sql = "INSERT INTO  Cotizaciones(estado, idEmpleado, idVehiculos ) 
             // VALUES (:estado, :idEmpleado, :idVehiculos)";
@@ -43,13 +43,14 @@ class  QuotesController extends BaseController
                 // $stament->bindParam(":impuesto",$datos["impuesto"]);
                 // $stament->bindParam(":subtotal",$datos["subtotal"]);
                 // $stament->bindParam(":total",$datos["total"]);
-                 $stament->bindParam(":estado",$datos["estado"]);
+                 $stament->bindParam(":estado",Constants::PENDING);
                 // $stament->bindParam(":descuento",$datos["descuento"]);
                 $stament->bindParam(":longitud",$datos["longitud"]);
                 $stament->bindParam(":latitud",$datos["latitud"]);
 
                 $stament->bindParam(":idEmpleado",$datos["idEmpleado"]);
                 $stament->bindParam(":idVehiculos",$datos["idVehiculos"]);
+                $stament->bindParam(":domicilio",$datos["domicilio"]);
                 $res = $stament->execute();
                 
 
@@ -203,7 +204,8 @@ class  QuotesController extends BaseController
             Cotizaciones.longitud,
             Cotizaciones.latitud,
             CONCAT(Empleado.nombre, ' ', Empleado.apellido)as Empleado,	
-            CONCAT(MarcasVehiculos.marca, ' ', ModelosVehiculos.modelo) as Vehiculo
+            CONCAT(MarcasVehiculos.marca, ' ', ModelosVehiculos.modelo) as Vehiculo,
+            Cotizaciones.domicilio
             from Cotizaciones
             INNER JOIN Vehiculos
             on Cotizaciones.idVehiculos = Vehiculos.idVehiculos
@@ -246,6 +248,7 @@ class  QuotesController extends BaseController
                         $row_array['latitud'] = $row['latitud'];
                         $row_array['Empleado'] = $row['Empleado'];
                         $row_array['Vehiculo'] = $row['Vehiculo'];
+                        $row_array['domicilio'] = $row['domicilio'];
                         
                         $row_array['DetallesCotizacion'] = array();
                         $idCotizaciones = $row['idCotizaciones'];  

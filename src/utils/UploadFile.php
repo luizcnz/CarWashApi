@@ -27,7 +27,7 @@ class UploadFile
     public function  UploadOneFile($uploadedFiles,$directory,$defaultImage)
     {
         $url=$defaultImage;
-        $type=$defaultImage==Constants::IMG_USER_DEFAULT?"user":"car";//Valida donde va guardar
+        $type=$defaultImage==Constants::IMG_USER_DEFAULT?"user":"auto";//Valida donde va guardar
         $directory= $_SERVER['DOCUMENT_ROOT'].$directory."/".$type;
          $uploadedFile = $uploadedFiles[Constants::IMG_UPLOAD_NAME];
         if ($this->isFileUploaded($uploadedFile))
