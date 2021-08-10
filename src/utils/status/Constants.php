@@ -10,6 +10,10 @@
 		const NO_CONTENT = 204;
 		const NO_AUTHORIZE=401;
 
+		const PENDING="pediente";
+		const ACEPTED="aceptado";
+		const REJECTED="rechazado";
+
 		const Ok="ok";
 		const FAIL_AUTH="failAuth";
         const ERROR="error";

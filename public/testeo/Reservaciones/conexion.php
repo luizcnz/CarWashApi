@@ -16,7 +16,7 @@ if ($db->connect_errno!=null)
 }
 else
 {
-	echo "Conexion Exitosa ";
+	//echo "Conexion Exitosa ";
 }
 
 ?>
