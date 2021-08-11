@@ -181,7 +181,10 @@ class  VehiclesController extends BaseController {
          $uploadedFiles = $request->getUploadedFiles();//Obtiene los archivo
          $upload= new UploadFile();
 
-         $urlFoto = $upload->UploadOneFile($uploadedFiles, Constants::DIR_IMG, Constants::IMG_CAR_DEFAULT);
+         if(isset($uploadedFiles[Constants::IMG_UPLOAD_NAME]))
+                $urlFoto = $upload->UploadOneFile($uploadedFiles, Constants::DIR_IMG, Constants::IMG_CAR_DEFAULT); 
+             else
+                 $urlFoto = Constants::IMG_CAR_DEFAULT;
 
          $codeStatus=0;
          try
@@ -235,7 +238,7 @@ class  VehiclesController extends BaseController {
 
         $upload= new UploadFile();
         
-        if($upload->isFileUploaded( $uploadedFiles[Constants::IMG_UPLOAD_NAME]))//valida si se cambio footo
+        if(isset($uploadedFiles[Constants::IMG_UPLOAD_NAME]))//valida si se cambio footo
         {
             $url = $upload->UploadOneFile($uploadedFiles, Constants::DIR_IMG, Constants::IMG_CAR_DEFAULT);
             $sql = "UPDATE Vehiculos SET numeroPlaca=:numeroPlaca, anio=:anio, observacion=:observacion, fotoRuta='$url',
