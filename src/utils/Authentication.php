@@ -93,7 +93,7 @@ class Authentication
     public function sendMessage($msg,$to){
 
         $account_sid = 'AC9dfa02114209e9e8c4eab3cc9b5c6f0a';
-        $auth_token = '3300d01b3c79ff224a739cf906e2a093';
+        $auth_token = '847be7cc5f0c8671d00c471aec58cd5a';
         $twilio_number = "+18322415140";
 
         $client = new Client($account_sid, $auth_token);
