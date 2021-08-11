@@ -35,6 +35,7 @@ class  VehiclesController extends BaseController {
         Vehiculos.observacion,
         MarcasVehiculos.marca,
         ModelosVehiculos.modelo,
+        CONCAT(MarcasVehiculos.marca,' ',ModelosVehiculos.modelo,'-', Vehiculos.numeroPlaca) as vehiculo,
         Combustible.tipoCombustible
         from Vehiculos 
         INNER JOIN MarcasVehiculos
