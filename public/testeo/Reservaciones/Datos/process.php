@@ -2,6 +2,7 @@
 include("conexion.php");
 
 $idcotizacion=$_POST["id"];
+$observaciones=$_POST["obersvaciones"];
 $acepta = null;
 $rechazar = null;
 
@@ -18,7 +19,7 @@ if($aceptar=="aceptar")
         	try
         	{
         		$resultado = $db->query("UPDATE Cotizaciones
-        		set estado = 'aceptado'
+        		set  estado = 'aceptado', observacion = ".$observaciones."
         		where idCotizaciones=".$idcotizacion);
 
         	echo "<script>alert('Se ha aceptado la reservacion'.$idcotizacion); window.location='http://api.com/testeo/reservaciones/reservaciones.php';</script>";
@@ -35,7 +36,7 @@ else if($rechazar=="rechazar")
 		{
 
 		$resultado = $db->query("UPDATE Cotizaciones
-        		set estado = 'rechazado'
+        		set estado = 'rechazado', observacion = ".$observaciones."
         		where idCotizaciones=".$idcotizacion);
 		echo "<script>alert('Se ha aceptado la reservacion'.$idcotizacion); window.location='http://api.com/testeo/reservaciones/reservaciones.php';</script>";
 		}

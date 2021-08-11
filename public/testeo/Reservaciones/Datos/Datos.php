@@ -178,6 +178,12 @@
 														<label class="form-control"><?php echo $datos['estado'];?></label>
 													</div>
 
+													<center>
+													<div class="form-group col-sm-6">
+														<label ><font color="white">Observacion</font></label>
+													<textarea rows="3" cols="40" name="obersvaciones" id="obersvaciones" maxlength="150"  value="" ></textarea>
+													</div></center>
+
 													<input type='hidden' name='accion' id='accion' value=''>
 
 													<div class="form-group last col-sm-12">

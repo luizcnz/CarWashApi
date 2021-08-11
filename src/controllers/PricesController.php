@@ -14,17 +14,40 @@ class  PricesController extends BaseController
 
 
             $respuesta = new ResponseServer();
-            $sql = "SELECT 
-            Precios.idPrecios,
-            Precios.precio,
-            Servicios.nombre_servicio,
-            TiposVehiculos.tipo_vehiculo
-            from Precios 
-            INNER JOIN Servicios
-            on Precios.idServicios = Servicios.idServicios
-            INNER JOIN TiposVehiculos
-            on Precios.idTipoVehiculos = TiposVehiculos.idTipoVehiculos
-            WHERE Precios.idTipoVehiculos=".$args["idTipoVehiculos"];
+
+            $datos = $request->getQueryParams();
+
+            if($datos["disponible_domicilio"]==1)
+            {
+                $sql = "SELECT 
+                Precios.idPrecios,
+                Precios.precio,
+                Servicios.nombre_servicio,
+                TiposVehiculos.tipo_vehiculo,
+                Servicios.disponible_domicilio
+                from Precios 
+                INNER JOIN Servicios
+                on Precios.idServicios = Servicios.idServicios
+                INNER JOIN TiposVehiculos
+                on Precios.idTipoVehiculos = TiposVehiculos.idTipoVehiculos
+                WHERE Precios.idTipoVehiculos=".$datos["idTipoVehiculos"]." and Servicios.disponible_domicilio = 1";
+            }
+            else
+            {
+                $sql = "SELECT 
+                Precios.idPrecios,
+                Precios.precio,
+                Servicios.nombre_servicio,
+                TiposVehiculos.tipo_vehiculo,
+                Servicios.disponible_domicilio
+                from Precios 
+                INNER JOIN Servicios
+                on Precios.idServicios = Servicios.idServicios
+                INNER JOIN TiposVehiculos
+                on Precios.idTipoVehiculos = TiposVehiculos.idTipoVehiculos
+                WHERE Precios.idTipoVehiculos=".$datos["idTipoVehiculos"];
+            }
+            
             $array=[];
             $codeStatus=0;
         
