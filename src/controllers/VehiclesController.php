@@ -35,6 +35,7 @@ class  VehiclesController extends BaseController {
         Vehiculos.observacion,
         MarcasVehiculos.marca,
         ModelosVehiculos.modelo,
+        ModelosVehiculos.idTipoVehiculos,
         CONCAT(MarcasVehiculos.marca,' ',ModelosVehiculos.modelo,' - ', Vehiculos.numeroPlaca) as nombreVehiculo,
         Combustible.tipoCombustible
         from Vehiculos 
