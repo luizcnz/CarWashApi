@@ -43,7 +43,7 @@ class  QuotesController extends BaseController
                 // $stament->bindParam(":impuesto",$datos["impuesto"]);
                 // $stament->bindParam(":subtotal",$datos["subtotal"]);
                 // $stament->bindParam(":total",$datos["total"]);
-                 $stament->bindParam(":estado",Constants::PENDING);
+                 $stament->bindParam(":estado",$datos["estado"]);
                 // $stament->bindParam(":descuento",$datos["descuento"]);
                 $stament->bindParam(":longitud",$datos["longitud"]);
                 $stament->bindParam(":latitud",$datos["latitud"]);

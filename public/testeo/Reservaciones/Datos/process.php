@@ -19,7 +19,7 @@ if($aceptar=="aceptar")
         	try
         	{
         		$resultado = $db->query("UPDATE Cotizaciones
-        		set  estado = 'aceptado', observacion = ".$observaciones."
+        		set  estado = 'aceptado'
         		where idCotizaciones=".$idcotizacion);
 
         	echo "<script>alert('Se ha aceptado la reservacion'.$idcotizacion); window.location='http://api.com/testeo/reservaciones/reservaciones.php';</script>";
@@ -36,7 +36,7 @@ else if($rechazar=="rechazar")
 		{
 
 		$resultado = $db->query("UPDATE Cotizaciones
-        		set estado = 'rechazado', observacion = ".$observaciones."
+        		set estado = 'rechazado'
         		where idCotizaciones=".$idcotizacion);
 		echo "<script>alert('Se ha aceptado la reservacion'.$idcotizacion); window.location='http://api.com/testeo/reservaciones/reservaciones.php';</script>";
 		}
