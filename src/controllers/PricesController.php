@@ -24,7 +24,8 @@ class  PricesController extends BaseController
                 Precios.precio,
                 Servicios.nombre_servicio,
                 TiposVehiculos.tipo_vehiculo,
-                Servicios.disponible_domicilio
+                Servicios.disponible_domicilio,
+                Servicios.idServicios
                 from Precios 
                 INNER JOIN Servicios
                 on Precios.idServicios = Servicios.idServicios
@@ -39,7 +40,8 @@ class  PricesController extends BaseController
                 Precios.precio,
                 Servicios.nombre_servicio,
                 TiposVehiculos.tipo_vehiculo,
-                Servicios.disponible_domicilio
+                Servicios.disponible_domicilio,
+                Servicios.idServicios
                 from Precios 
                 INNER JOIN Servicios
                 on Precios.idServicios = Servicios.idServicios
