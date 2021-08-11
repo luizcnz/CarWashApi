@@ -301,7 +301,8 @@ class  VehiclesController extends BaseController {
 
         $sql = "SELECT 	
         idModeloVehiculos, 
-        modelo 
+        modelo,
+        idTipoVehiculos 
         from ModelosVehiculos
         where idMarcaVehiculos=".$args["idMarcaVehiculos"];
         $array=[];
